@@ -29,7 +29,6 @@ func SubSwapTicker(symbols []string, reciveHandle func(ReciveData, []byte), errH
 		fmt.Println("\n## connected SubSwapTicker")
 		for _, symbol := range symbols {
 			ws.SendTextMessage(fmt.Sprintf(`{"sub": "market.%s-USDT.bbo", "id": "id%v"}`, strings.ToUpper(symbol), time.Now().Unix()))
-			time.Sleep(time.Millisecond * 50)
 		}
 		fmt.Printf("Sub: %v\n", strings.Join(symbols, "、"))
 	})

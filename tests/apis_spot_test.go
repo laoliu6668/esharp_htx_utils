@@ -52,3 +52,12 @@ func Test_SpotSellMarket(t *testing.T) {
 	}
 	t.Logf("order no: %v", no)
 }
+
+func Test_SpotBorrow(t *testing.T) {
+	data, err := htx.SpotBorrow("dot", 2)
+	if err != nil {
+		t.Errorf("Error: %v", err)
+		return
+	}
+	t.Logf("data: %v", data)
+}

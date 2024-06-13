@@ -169,7 +169,7 @@ func SpotSellMarket(symb string, volume float64) (data string, err error) {
 		fmt.Println(err)
 		return
 	}
-	fmt.Printf("string(body): %v\n", string(body))
+	// fmt.Printf("string(body): %v\n", string(body))
 	res := ApiResponseV1String{}
 	err = json.Unmarshal(body, &res)
 	if err != nil {
@@ -182,5 +182,69 @@ func SpotSellMarket(symb string, volume float64) (data string, err error) {
 		return
 	}
 
+	return res.Data, nil
+}
+
+type ApiResponseV1No struct {
+	// 定义响应结构体
+	Data int64 `json:"data"`
+	htx.ApiResponseV1
+}
+
+//	(申请借币（逐仓）)
+//
+// doc: https://www.htx.com/zh-cn/opend/newApiPages/?id=7ec438b9-7773-11ed-9966-0242ac110003
+func SpotBorrow(symbol string, amount float64) (data int64, err error) {
+	const flag = "HTX SpotBorrow"
+	body, _, err := htx.ApiConfig.Post(gateway_huobiPro, "/v1/margin/orders", map[string]any{
+		"symbol":   fmt.Sprintf("%susdt", strings.ToLower(symbol)),
+		"currency": strings.ToLower(symbol),
+		"amount":   amount,
+	})
+	if err != nil {
+		err = fmt.Errorf("%s err: %v", flag, err)
+		fmt.Println(err)
+		return
+	}
+	fmt.Printf("string(body): %v\n", string(body))
+	res := ApiResponseV1No{}
+	err = json.Unmarshal(body, &res)
+	if err != nil {
+		err = fmt.Errorf("%s jsonDecodeErr: %v", flag, err)
+		fmt.Println(err)
+		return
+	}
+	if !res.Success() {
+		err = fmt.Errorf("%s false:%v", flag, res.Message)
+		return
+	}
+	return res.Data, nil
+}
+
+//	(归还借币（逐仓）)
+//
+// doc: https://www.htx.com/zh-cn/opend/newApiPages/?id=7ec438b9-7773-11ed-9966-0242ac110003
+func SpotReturn(orderId int64, amount float64) (data int64, err error) {
+	const flag = "HTX SpotBorrow"
+	body, _, err := htx.ApiConfig.Post(gateway_huobiPro, fmt.Sprintf("/v1/margin/orders/%d/repay", orderId), map[string]any{
+		"amount": amount,
+	})
+	if err != nil {
+		err = fmt.Errorf("%s err: %v", flag, err)
+		fmt.Println(err)
+		return
+	}
+	fmt.Printf("string(body): %v\n", string(body))
+	res := ApiResponseV1No{}
+	err = json.Unmarshal(body, &res)
+	if err != nil {
+		err = fmt.Errorf("%s jsonDecodeErr: %v", flag, err)
+		fmt.Println(err)
+		return
+	}
+	if !res.Success() {
+		err = fmt.Errorf("%s false:%v", flag, res.Message)
+		return
+	}
 	return res.Data, nil
 }

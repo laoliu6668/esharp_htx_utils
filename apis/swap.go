@@ -35,7 +35,7 @@ func GetSwapSymbol() (data []map[string]any, err error) {
 		err = fmt.Errorf("%s err: %v", symbol, err)
 		return
 	}
-	util.WriteTestJsonFile(symbol, body)
+	// util.WriteTestJsonFile(symbol, body)
 
 	res := ApiResponseSwapListData{}
 	d := json.NewDecoder(strings.NewReader(string(body)))
