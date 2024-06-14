@@ -100,7 +100,7 @@ func SubAccountUpdate(reciveHandle func(ReciveBalanceMsg), logHandle func(string
 				b, _ := res.Data.Balance.Float64()
 				reciveHandle(ReciveBalanceMsg{
 					Exchange:  htx.ExchangeName,
-					Symbol:    res.Data.Currency,
+					Symbol:    strings.ToUpper(res.Data.Currency),
 					AccountId: res.Data.AccountId,
 					Available: a,
 					Balance:   b,
