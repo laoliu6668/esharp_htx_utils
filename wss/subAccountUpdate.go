@@ -89,12 +89,12 @@ func SubAccountUpdate(reciveHandle func(ReciveBalanceMsg), logHandle func(string
 				AccountType string      `json:"accountType"`
 				// SeqNum      int64       `json:"seqNum"`
 			}
-
+			fmt.Printf("msg: %v", message)
 			type TickerRes struct {
 				Data Data `json:"data"`
 			}
 			res := TickerRes{}
-			json.Unmarshal([]byte(string(message)), &res)
+			json.Unmarshal([]byte(message), &res)
 			if res.Data.AccountType == "trade" {
 				a, _ := res.Data.Available.Float64()
 				b, _ := res.Data.Balance.Float64()
