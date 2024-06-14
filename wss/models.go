@@ -20,11 +20,11 @@ type ReciveData struct {
 }
 
 type ReciveBalanceMsg struct {
-	Exchange  string `json:"exchange"`
-	Symbol    string `json:"symbol"`
-	Available string `json:"available"`
-	AccountId int    `json:"accountId"`
-	Balance   string `json:"balance"`
+	Exchange  string  `json:"exchange"`
+	Symbol    string  `json:"symbol"`
+	Available float64 `json:"available"`
+	AccountId int     `json:"accountId"`
+	Balance   string  `json:"balance"`
 }
 
 type ReciveAccountsMsg struct {

@@ -9,7 +9,8 @@ import (
 	"github.com/laoliu6668/esharp_htx_utils/util/websocketclient"
 )
 
-func SubAccountUpdate(reciveHandle func(ReciveBalanceMsg), errHandle func(error)) {
+// 订阅现货账户变化
+func SubAccountUpdate(reciveHandle func(ReciveBalanceMsg), logHandle func(string), errHandle func(error)) {
 
 	gateway := "api.huobi.pro"
 	path := "/ws/v2"
@@ -23,20 +24,20 @@ func SubAccountUpdate(reciveHandle func(ReciveBalanceMsg), errHandle func(error)
 	requrl := fmt.Sprintf("wss://%s%s", gateway, path)
 	proxyUrl := ""
 	if htx.UseProxy {
+		go logHandle(fmt.Sprintf("proxyUrl: %v\n", htx.ProxyUrl))
 		proxyUrl = fmt.Sprintf("http://%s", htx.ProxyUrl)
 	}
-	fmt.Printf("requrl: %v\n", requrl)
-	fmt.Printf("proxyUrl: %v\n", proxyUrl)
+	go logHandle(fmt.Sprintf("requrl: %v\n", requrl))
 	ws := websocketclient.New(requrl, proxyUrl)
 	ws.OnConnectError(func(err error) {
-		fmt.Printf("err: %v\n", err)
-		errHandle(err)
+		// fmt.Printf("err: %v\n", err)
+		go errHandle(err)
 	})
 	ws.OnDisconnected(func(err error) {
-		errHandle(err)
+		go errHandle(err)
 	})
 	ws.OnConnected(func() {
-		fmt.Println("\n## connected SubAccountUpdate")
+		go logHandle("## connected SubAccountUpdate\n")
 		// 发送鉴权消息
 		mp["authType"] = "api"
 		authMap := map[string]any{
@@ -48,8 +49,8 @@ func SubAccountUpdate(reciveHandle func(ReciveBalanceMsg), errHandle func(error)
 		// ws.SendBinaryMessage(authBuf)
 		ws.SendTextMessage(string(authBuf))
 
-		fmt.Printf("authInfo: %v\n", string(authBuf))
-
+		go logHandle("## SubAccountUpdate send auth\n")
+		// fmt.Printf("authInfo: %v\n", string(authBuf))
 	})
 
 	ws.OnTextMessageReceived(func(message string) {
@@ -62,7 +63,7 @@ func SubAccountUpdate(reciveHandle func(ReciveBalanceMsg), errHandle func(error)
 		msg := Msg{}
 		err := json.Unmarshal([]byte(message), &msg)
 		if err != nil {
-			errHandle(fmt.Errorf("decode: %v", err))
+			go errHandle(fmt.Errorf("decode: %v", err))
 			return
 		}
 		if msg.Action == "ping" {
@@ -79,28 +80,27 @@ func SubAccountUpdate(reciveHandle func(ReciveBalanceMsg), errHandle func(error)
 			// 收到ping 回复pong
 			ws.SendTextMessage(pong)
 		} else if msg.Action == "push" && strings.Contains(msg.Ch, "accounts.update") {
-			fmt.Printf("message: %v\n", message)
 
 			type Data struct {
-				Currency    string      `json:"currency"`
-				AccountId   int64       `json:"accountId"`
-				Balance     json.Number `json:"balance"`
+				Currency  string `json:"currency"`
+				AccountId int64  `json:"accountId"`
+				// Balance     json.Number `json:"balance"`
 				Available   json.Number `json:"available"`
 				AccountType string      `json:"accountType"`
-				SeqNum      int64       `json:"seqNum"`
+				// SeqNum      int64       `json:"seqNum"`
 			}
 
 			type TickerRes struct {
 				Data Data `json:"data"`
 			}
-
 			res := TickerRes{}
 			json.Unmarshal([]byte(string(message)), &res)
 			if res.Data.AccountType == "trade" {
+				a, _ := res.Data.Available.Float64()
 				reciveHandle(ReciveBalanceMsg{
 					Exchange:  htx.ExchangeName,
 					Symbol:    res.Data.Currency,
-					Available: res.Data.Balance.String(),
+					Available: a,
 				})
 			}
 		} else if msg.Action == "req" {
@@ -111,20 +111,23 @@ func SubAccountUpdate(reciveHandle func(ReciveBalanceMsg), errHandle func(error)
 					"ch":     "accounts.update#0",
 				}
 				bf, _ := json.Marshal(subAccountUpdateMp)
-				fmt.Printf("sub: %v\n", string(bf))
+				// fmt.Printf("sub: %v\n", string(bf))
+				go logHandle(fmt.Sprintf("sub: %v\n", string(bf)))
 				ws.SendTextMessage(string(bf))
 			}
 		} else if msg.Action == "sub" {
+			go logHandle("## SubAccountUpdate sub success\n")
 			// if msg.Code != 200 {
 			// }
 		} else {
-			fmt.Printf("unknown message: %v\n", string(message))
+			// fmt.Printf("unknown message: %v\n", string(message))
+			go logHandle(fmt.Sprintf("unknown message: %v\n", string(message)))
 		}
 	})
 
 	ws.OnClose(func(code int, text string) {
-		fmt.Printf("close: %v, %v\n", code, text)
-		errHandle(fmt.Errorf("close: %v, %v", code, text))
+		// fmt.Printf("close: %v, %v\n", code, text)
+		go errHandle(fmt.Errorf("close: %v, %v", code, text))
 	})
 
 	ws.Connect()

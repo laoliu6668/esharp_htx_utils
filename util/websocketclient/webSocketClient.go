@@ -252,12 +252,12 @@ func (wsc *Wsc) Connect() {
 				// 收到TextMessage回调
 				case websocket.TextMessage:
 					if wsc.onTextMessageReceived != nil {
-						wsc.onTextMessageReceived(string(message))
+						go wsc.onTextMessageReceived(string(message))
 					}
 				// 收到BinaryMessage回调
 				case websocket.BinaryMessage:
 					if wsc.onBinaryMessageReceived != nil {
-						wsc.onBinaryMessageReceived(message)
+						go wsc.onBinaryMessageReceived(message)
 					}
 				}
 			}

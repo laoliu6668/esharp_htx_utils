@@ -22,17 +22,17 @@ func SubSpotTicker(symbols []string, reciveHandle func(ReciveData, []byte), logH
 	ws := websocketclient.New(gateway, proxyUrl)
 	ws.OnConnectError(func(err error) {
 		fmt.Printf("err: %v\n", err)
-		errHandle(err)
+		go errHandle(err)
 	})
 	ws.OnDisconnected(func(err error) {
-		errHandle(err)
+		go errHandle(err)
 	})
 	ws.OnConnected(func() {
-		logHandle("## connected SubSwapTicker")
+		go logHandle("## connected SubSwapTicker")
 		for _, symbol := range symbols {
 			ws.SendTextMessage(fmt.Sprintf(`{"sub": "market.%susdt.bbo", "id": "id%v"}`, strings.ToLower(symbol), time.Now().Unix()))
 		}
-		logHandle(fmt.Sprintf("Sub: %v\n", strings.Join(symbols, "、")))
+		go logHandle(fmt.Sprintf("Sub: %v\n", strings.Join(symbols, "、")))
 	})
 	ws.OnBinaryMessageReceived(func(message []byte) {
 		r, _ := gzip.NewReader(bytes.NewReader(message))
@@ -42,7 +42,7 @@ func SubSpotTicker(symbols []string, reciveHandle func(ReciveData, []byte), logH
 		d.UseNumber()
 		err := d.Decode(&mp)
 		if err != nil {
-			errHandle(fmt.Errorf("decode: %v", err))
+			go errHandle(fmt.Errorf("decode: %v", err))
 			return
 		}
 		if _, ok := mp["ping"]; ok {
@@ -86,11 +86,11 @@ func SubSpotTicker(symbols []string, reciveHandle func(ReciveData, []byte), logH
 			defer gw.Close()
 			_, err = gw.Write(input)
 			if err != nil {
-				errHandle(err)
+				go errHandle(err)
 				return
 			}
 			if err := gw.Close(); err != nil {
-				errHandle(err)
+				go errHandle(err)
 				return
 			}
 			reciveHandle(ReciveData{
@@ -100,15 +100,15 @@ func SubSpotTicker(symbols []string, reciveHandle func(ReciveData, []byte), logH
 				buf.Bytes(),
 			)
 		} else if _, ok := mp["subbed"]; ok {
-			logHandle(fmt.Sprintf("subbed: %v", string(buff)))
+			go logHandle(fmt.Sprintf("subbed: %v", string(buff)))
 		} else {
-			logHandle(fmt.Sprintf("unknown message: %v", string(buff)))
+			go logHandle(fmt.Sprintf("unknown message: %v", string(buff)))
 		}
 	})
 
 	ws.OnClose(func(code int, text string) {
-		fmt.Printf("close: %v, %v\n", code, text)
-		errHandle(fmt.Errorf("close: %v, %v", code, text))
+		// fmt.Printf("close: %v, %v\n", code, text)
+		go errHandle(fmt.Errorf("close: %v, %v", code, text))
 	})
 
 	ws.Connect()
