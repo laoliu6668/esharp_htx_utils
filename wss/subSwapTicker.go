@@ -13,7 +13,7 @@ import (
 	"github.com/laoliu6668/esharp_htx_utils/util/websocketclient"
 )
 
-func SubSwapTicker(symbols []string, reciveHandle func(ReciveData, []byte), errHandle func(error)) {
+func SubSwapTicker(symbols []string, reciveHandle func(ReciveData, []byte), logHandle func(string), errHandle func(error)) {
 	gateway := "wss://api.hbdm.com/linear-swap-ws"
 	proxyUrl := ""
 	if htx.UseProxy {
@@ -21,18 +21,17 @@ func SubSwapTicker(symbols []string, reciveHandle func(ReciveData, []byte), errH
 	}
 	ws := websocketclient.New(gateway, proxyUrl)
 	ws.OnConnectError(func(err error) {
-		fmt.Printf("err: %v\n", err)
-		errHandle(err)
+		errHandle(fmt.Errorf("OnConnectError: %v", err))
 	})
 	ws.OnDisconnected(func(err error) {
-		errHandle(err)
+		errHandle(fmt.Errorf("disconnected: %v", err))
 	})
 	ws.OnConnected(func() {
-		fmt.Println("\n## connected SubSwapTicker")
+		logHandle("## connected SubSwapTicker")
 		for _, symbol := range symbols {
 			ws.SendTextMessage(fmt.Sprintf(`{"sub": "market.%s-USDT.bbo", "id": "id%v"}`, strings.ToUpper(symbol), time.Now().Unix()))
 		}
-		fmt.Printf("Sub: %v\n", strings.Join(symbols, "、"))
+		logHandle(fmt.Sprintf("Sub: %v\n", strings.Join(symbols, "、")))
 	})
 	ws.OnBinaryMessageReceived(func(message []byte) {
 		r, _ := gzip.NewReader(bytes.NewReader(message))
@@ -42,7 +41,7 @@ func SubSwapTicker(symbols []string, reciveHandle func(ReciveData, []byte), errH
 		d.UseNumber()
 		err := d.Decode(&mp)
 		if err != nil {
-			fmt.Printf("decode: %v", err)
+			errHandle(fmt.Errorf("decode: %v", err))
 			return
 		}
 		if _, ok := mp["ping"]; ok {
@@ -65,7 +64,6 @@ func SubSwapTicker(symbols []string, reciveHandle func(ReciveData, []byte), errH
 				Tick Tick   `json:"tick"`
 			}
 			res := Res{}
-			// fmt.Printf("string(buff): %v\n", string(buff))
 			json.Unmarshal([]byte(string(buff)), &res)
 			symbolArr := strings.Split(res.Ch, ".")
 			if len(symbolArr) > 1 {
@@ -100,11 +98,11 @@ func SubSwapTicker(symbols []string, reciveHandle func(ReciveData, []byte), errH
 			defer gw.Close()
 			_, err = gw.Write(input)
 			if err != nil {
-				errHandle(err)
+				errHandle(fmt.Errorf("gzipWrite: %v", err))
 				return
 			}
 			if err := gw.Close(); err != nil {
-				errHandle(err)
+				errHandle(fmt.Errorf("gzipClose: %v", err))
 				return
 			}
 			reciveHandle(ReciveData{
@@ -114,13 +112,13 @@ func SubSwapTicker(symbols []string, reciveHandle func(ReciveData, []byte), errH
 			}, buf.Bytes(),
 			)
 		} else if _, ok := mp["subbed"]; ok {
+			logHandle(fmt.Sprintf("subbed: %v", string(buff)))
 		} else {
-			fmt.Printf("unknown message: %v\n", string(buff))
+			logHandle(fmt.Sprintf("unknown message: %v", string(buff)))
 		}
 	})
 
 	ws.OnClose(func(code int, text string) {
-		fmt.Printf("close: %v, %v\n", code, text)
 		errHandle(fmt.Errorf("close: %v, %v", code, text))
 	})
 

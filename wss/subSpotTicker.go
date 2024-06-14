@@ -13,7 +13,7 @@ import (
 	"github.com/laoliu6668/esharp_htx_utils/util/websocketclient"
 )
 
-func SubSpotTicker(symbols []string, reciveHandle func(ReciveData, []byte), errHandle func(error)) {
+func SubSpotTicker(symbols []string, reciveHandle func(ReciveData, []byte), logHandle func(string), errHandle func(error)) {
 	gateway := "wss://api.huobi.pro/wss"
 	proxyUrl := ""
 	if htx.UseProxy {
@@ -28,12 +28,11 @@ func SubSpotTicker(symbols []string, reciveHandle func(ReciveData, []byte), errH
 		errHandle(err)
 	})
 	ws.OnConnected(func() {
-		fmt.Println("\n## connected SubSpotTicker")
+		logHandle("## connected SubSwapTicker")
 		for _, symbol := range symbols {
 			ws.SendTextMessage(fmt.Sprintf(`{"sub": "market.%susdt.bbo", "id": "id%v"}`, strings.ToLower(symbol), time.Now().Unix()))
 		}
-		fmt.Printf("Sub: %v\n", strings.Join(symbols, "、"))
-
+		logHandle(fmt.Sprintf("Sub: %v\n", strings.Join(symbols, "、")))
 	})
 	ws.OnBinaryMessageReceived(func(message []byte) {
 		r, _ := gzip.NewReader(bytes.NewReader(message))
@@ -100,6 +99,10 @@ func SubSpotTicker(symbols []string, reciveHandle func(ReciveData, []byte), errH
 				Ticker:   ticker},
 				buf.Bytes(),
 			)
+		} else if _, ok := mp["subbed"]; ok {
+			logHandle(fmt.Sprintf("subbed: %v", string(buff)))
+		} else {
+			logHandle(fmt.Sprintf("unknown message: %v", string(buff)))
 		}
 	})
 
