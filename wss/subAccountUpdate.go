@@ -89,7 +89,6 @@ func SubAccountUpdate(reciveHandle func(ReciveBalanceMsg), logHandle func(string
 				AccountType string      `json:"accountType"`
 				// SeqNum      int64       `json:"seqNum"`
 			}
-			fmt.Printf("msg: %v", message)
 			type TickerRes struct {
 				Data Data `json:"data"`
 			}
