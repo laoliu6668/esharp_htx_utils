@@ -23,8 +23,8 @@ type ReciveBalanceMsg struct {
 	Exchange  string  `json:"exchange"`
 	Symbol    string  `json:"symbol"`
 	Available float64 `json:"available"`
-	AccountId int     `json:"accountId"`
-	Balance   string  `json:"balance"`
+	AccountId int64   `json:"accountId"`
+	Balance   float64 `json:"balance"`
 }
 
 type ReciveAccountsMsg struct {

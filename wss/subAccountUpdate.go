@@ -82,9 +82,9 @@ func SubAccountUpdate(reciveHandle func(ReciveBalanceMsg), logHandle func(string
 		} else if msg.Action == "push" && strings.Contains(msg.Ch, "accounts.update") {
 
 			type Data struct {
-				Currency  string `json:"currency"`
-				AccountId int64  `json:"accountId"`
-				// Balance     json.Number `json:"balance"`
+				Currency    string      `json:"currency"`
+				AccountId   int64       `json:"accountId"`
+				Balance     json.Number `json:"balance"`
 				Available   json.Number `json:"available"`
 				AccountType string      `json:"accountType"`
 				// SeqNum      int64       `json:"seqNum"`
@@ -97,10 +97,13 @@ func SubAccountUpdate(reciveHandle func(ReciveBalanceMsg), logHandle func(string
 			json.Unmarshal([]byte(string(message)), &res)
 			if res.Data.AccountType == "trade" {
 				a, _ := res.Data.Available.Float64()
+				b, _ := res.Data.Balance.Float64()
 				reciveHandle(ReciveBalanceMsg{
 					Exchange:  htx.ExchangeName,
 					Symbol:    res.Data.Currency,
+					AccountId: res.Data.AccountId,
 					Available: a,
+					Balance:   b,
 				})
 			}
 		} else if msg.Action == "req" {
