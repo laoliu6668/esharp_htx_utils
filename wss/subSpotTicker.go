@@ -24,6 +24,9 @@ func SubSpotTicker(symbols []string, reciveHandle func(ReciveData, []byte), errH
 		fmt.Printf("err: %v\n", err)
 		errHandle(err)
 	})
+	ws.OnDisconnected(func(err error) {
+		errHandle(err)
+	})
 	ws.OnConnected(func() {
 		fmt.Println("\n## connected SubSpotTicker")
 		for _, symbol := range symbols {

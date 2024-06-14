@@ -34,7 +34,9 @@ func SubPositionsContractCode(reciveHandle func(ReciveAccountsMsg), errHandle fu
 		fmt.Printf("err: %v\n", err)
 		errHandle(err)
 	})
-
+	ws.OnDisconnected(func(err error) {
+		errHandle(err)
+	})
 	ws.OnConnected(func() {
 		fmt.Println("\n## connected SubAccountUpdate")
 		// 发送鉴权消息

@@ -24,7 +24,9 @@ func SubSwapTicker(symbols []string, reciveHandle func(ReciveData, []byte), errH
 		fmt.Printf("err: %v\n", err)
 		errHandle(err)
 	})
-
+	ws.OnDisconnected(func(err error) {
+		errHandle(err)
+	})
 	ws.OnConnected(func() {
 		fmt.Println("\n## connected SubSwapTicker")
 		for _, symbol := range symbols {

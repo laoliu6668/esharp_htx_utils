@@ -32,7 +32,9 @@ func SubAccountUpdate(reciveHandle func(ReciveBalanceMsg), errHandle func(error)
 		fmt.Printf("err: %v\n", err)
 		errHandle(err)
 	})
-
+	ws.OnDisconnected(func(err error) {
+		errHandle(err)
+	})
 	ws.OnConnected(func() {
 		fmt.Println("\n## connected SubAccountUpdate")
 		// 发送鉴权消息
