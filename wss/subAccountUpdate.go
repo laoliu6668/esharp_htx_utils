@@ -80,6 +80,7 @@ func SubAccountUpdate(reciveHandle func(ReciveBalanceMsg), errHandle func(error)
 			ws.SendTextMessage(pong)
 		} else if msg.Action == "push" && strings.Contains(msg.Ch, "accounts.update") {
 			fmt.Printf("message: %v\n", message)
+
 			type Data struct {
 				Currency    string      `json:"currency"`
 				AccountId   int64       `json:"accountId"`
@@ -95,11 +96,13 @@ func SubAccountUpdate(reciveHandle func(ReciveBalanceMsg), errHandle func(error)
 
 			res := TickerRes{}
 			json.Unmarshal([]byte(string(message)), &res)
-			reciveHandle(ReciveBalanceMsg{
-				Exchange:  htx.ExchangeName,
-				Symbol:    res.Data.Currency,
-				Available: res.Data.Balance.String(),
-			})
+			if res.Data.AccountType == "trade" {
+				reciveHandle(ReciveBalanceMsg{
+					Exchange:  htx.ExchangeName,
+					Symbol:    res.Data.Currency,
+					Available: res.Data.Balance.String(),
+				})
+			}
 		} else if msg.Action == "req" {
 			if msg.Ch == "auth" && msg.Code == 200 {
 				// 订阅账户信息

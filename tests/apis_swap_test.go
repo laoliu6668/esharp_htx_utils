@@ -52,7 +52,26 @@ func Test_GetSwapFundingRate(t *testing.T) {
 	util.WriteTestJsonFile("Test_GetSwapFundingRate", b)
 	t.Logf("data len: %v", len(data))
 }
-
+func Test_GetSwapAccountInfo(t *testing.T) {
+	data, err := htx.GetSwapAccountInfo("")
+	if err != nil {
+		t.Errorf("Error: %v", err)
+		return
+	}
+	b, _ := json.Marshal(data)
+	util.WriteTestJsonFile("Test_GetSwapAccountInfo", b)
+	t.Logf("data len: %v", len(data))
+}
+func Test_GetSwapPositionInfo(t *testing.T) {
+	data, err := htx.GetSwapPositionInfo("")
+	if err != nil {
+		t.Errorf("Error: %v", err)
+		return
+	}
+	b, _ := json.Marshal(data)
+	util.WriteTestJsonFile("Test_GetSwapPositionInfo", b)
+	t.Logf("data len: %v", len(data))
+}
 func Test_GetSwapAccountPositionInfo(t *testing.T) {
 	data, err := htx.GetSwapAccountPositionInfo("")
 	if err != nil {

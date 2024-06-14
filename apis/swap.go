@@ -186,14 +186,78 @@ func GetSwapFundingRate() (data []map[string]any, err error) {
 	return data, nil
 }
 
+// ## 获取用户账户信息
+// https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb74886-77b5-11ed-9966-0242ac110003
+func GetSwapAccountInfo(symb string) (data []map[string]any, err error) {
+	const symbol = "HTX GetSwapAccountInfo"
+	if symb != "" {
+		symb = symb + "-USDT"
+	}
+	body, _, err := htx.ApiConfig.Post(gateway_hbdm, "/linear-swap-api/v1/swap_account_info", map[string]any{
+		"contract_code": symb,
+	})
+	if err != nil {
+		err = fmt.Errorf("%s err: %v", symbol, err)
+		return
+	}
+
+	res := ApiResponseSwapListData{}
+	d := json.NewDecoder(strings.NewReader(string(body)))
+	d.UseNumber()
+	err = d.Decode(&res)
+	if err != nil {
+		err = fmt.Errorf("%s jsonDecodeErr: %v", symbol, err)
+		fmt.Println(err)
+		return
+	}
+	if !res.Success() {
+		err = fmt.Errorf("%s false:%v", symbol, res.Message)
+		return
+	}
+
+	return res.Data, nil
+}
+
 // ## 获取用户持仓信息
+// https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb74886-77b5-11ed-9966-0242ac110003
+func GetSwapPositionInfo(symb string) (data []map[string]any, err error) {
+	const symbol = "HTX GetSwapPositionInfo"
+	if symb != "" {
+		symb = symb + "-USDT"
+	}
+	body, _, err := htx.ApiConfig.Post(gateway_hbdm, "/linear-swap-api/v1/swap_position_info", map[string]any{
+		"contract_code": symb,
+	})
+	if err != nil {
+		err = fmt.Errorf("%s err: %v", symbol, err)
+		return
+	}
+
+	res := ApiResponseSwapListData{}
+	d := json.NewDecoder(strings.NewReader(string(body)))
+	d.UseNumber()
+	err = d.Decode(&res)
+	if err != nil {
+		err = fmt.Errorf("%s jsonDecodeErr: %v", symbol, err)
+		fmt.Println(err)
+		return
+	}
+	if !res.Success() {
+		err = fmt.Errorf("%s false:%v", symbol, res.Message)
+		return
+	}
+
+	return res.Data, nil
+}
+
+// ## 获取用户账户和持仓信息
 // https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb74886-77b5-11ed-9966-0242ac110003
 func GetSwapAccountPositionInfo(symb string) (data []map[string]any, err error) {
 	const symbol = "HTX GetSwapAccountPositionInfo"
 	if symb != "" {
 		symb = symb + "-USDT"
 	}
-	body, _, err := htx.ApiConfig.Post(gateway_hbdm, "/linear-swap-api/v1/swap_position_info", map[string]any{
+	body, _, err := htx.ApiConfig.Post(gateway_hbdm, "/linear-swap-api/v1/swap_account_position_info", map[string]any{
 		"contract_code": symb,
 	})
 	if err != nil {
