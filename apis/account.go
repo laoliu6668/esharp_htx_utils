@@ -136,3 +136,59 @@ func SwapToSpotTransfer(amount float64, symb string) (no int, err error) {
 	}
 	return res.Data, nil
 }
+
+// ### 现货账户向逐仓账户划转
+// doc: https://www.htx.com/zh-cn/opend/newApiPages/?id=7ec42443-7773-11ed-9966-0242ac110003
+func SpotToMarginTransfer(amount float64, symb string) (no int, err error) {
+	const symbol = "HTX SpotToMarginTransfer"
+	body, _, err := htx.ApiConfig.Post(gateway_huobiPro, "/v1/dw/transfer-in/margin", map[string]any{
+		"currency": "usdt",
+		"amount":   amount,
+		"symbol":   strings.ToLower(symb) + "usdt",
+	})
+	// fmt.Printf("string(body): %v\n", string(body))
+	if err != nil {
+		err = fmt.Errorf("%s err: %v", symbol, err)
+		fmt.Println(err)
+		return
+	}
+	res := htx.ApiResponseIntData{}
+	err = json.Unmarshal(body, &res)
+	if err != nil {
+		err = fmt.Errorf("%s jsonDecodeErr: %v", symbol, err)
+		fmt.Println(err)
+		return
+	}
+	if !res.Success() {
+		return 0, fmt.Errorf("%s false:%v", symbol, res.Message)
+	}
+	return res.Data, nil
+}
+
+// ### 逐仓账户向现货账户划转
+// doc: https://www.htx.com/zh-cn/opend/newApiPages/?id=7ec427c6-7773-11ed-9966-0242ac110003
+func SwapToMarginTransfer(amount float64, symb string) (no int, err error) {
+	const symbol = "HTX SpotToMarginTransfer"
+	body, _, err := htx.ApiConfig.Post(gateway_huobiPro, "/v1/dw/transfer-out/margin", map[string]any{
+		"currency": "usdt",
+		"amount":   amount,
+		"symbol":   strings.ToLower(symb) + "usdt",
+	})
+	// fmt.Printf("string(body): %v\n", string(body))
+	if err != nil {
+		err = fmt.Errorf("%s err: %v", symbol, err)
+		fmt.Println(err)
+		return
+	}
+	res := htx.ApiResponseIntData{}
+	err = json.Unmarshal(body, &res)
+	if err != nil {
+		err = fmt.Errorf("%s jsonDecodeErr: %v", symbol, err)
+		fmt.Println(err)
+		return
+	}
+	if !res.Success() {
+		return 0, fmt.Errorf("%s false:%v", symbol, res.Message)
+	}
+	return res.Data, nil
+}

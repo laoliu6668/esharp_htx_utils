@@ -190,6 +190,43 @@ type ApiResponseV1No struct {
 	Data int64 `json:"data"`
 	htx.ApiResponseV1
 }
+type ApiResponseV1List struct {
+	// 定义响应结构体
+	Data []map[string]any `json:"data"`
+	htx.ApiResponseV1
+}
+
+// 查询借币币息率及额度（逐仓）
+// doc: https://www.htx.com/zh-cn/opend/newApiPages/?id=7ec43494-7773-11ed-9966-0242ac110003
+func GetSpotMarginLoanInfo(symbols []string) (data []map[string]any, err error) {
+	const flag = "HTX GetSpotMarginLoanInfo"
+	list := []string{}
+	for _, symbol := range symbols {
+		list = append(list, fmt.Sprintf("%susdt", strings.ToLower(symbol)))
+	}
+	body, _, err := htx.ApiConfig.Get(gateway_huobiPro, "/v1/margin/loan-info", map[string]any{
+		"symbols": strings.Join(list, ","),
+	})
+	if err != nil {
+		err = fmt.Errorf("%s err: %v", flag, err)
+		fmt.Println(err)
+		return
+	}
+	fmt.Printf("string(body): %v\n", string(body))
+	res := ApiResponseV1List{}
+	err = json.Unmarshal(body, &res)
+	if err != nil {
+		err = fmt.Errorf("%s jsonDecodeErr: %v", flag, err)
+		fmt.Println(err)
+		return
+	}
+	if !res.Success() {
+		err = fmt.Errorf("%s false:%v", flag, res.Message)
+		return
+	}
+	return res.Data, nil
+
+}
 
 //	(申请借币（逐仓）)
 //

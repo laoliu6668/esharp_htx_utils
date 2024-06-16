@@ -186,7 +186,7 @@ func GetSwapFundingRate() (data []map[string]any, err error) {
 	return data, nil
 }
 
-// ## 获取用户账户信息
+// ## 【逐仓】获取用户账户信息
 // https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb74886-77b5-11ed-9966-0242ac110003
 func GetSwapAccountInfo(symb string) (data []map[string]any, err error) {
 	const symbol = "HTX GetSwapAccountInfo"
@@ -218,7 +218,7 @@ func GetSwapAccountInfo(symb string) (data []map[string]any, err error) {
 	return res.Data, nil
 }
 
-// ## 获取用户持仓信息
+// ## 【逐仓】获取用户持仓信息
 // https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb74886-77b5-11ed-9966-0242ac110003
 func GetSwapPositionInfo(symb string) (data []map[string]any, err error) {
 	const symbol = "HTX GetSwapPositionInfo"
@@ -250,7 +250,7 @@ func GetSwapPositionInfo(symb string) (data []map[string]any, err error) {
 	return res.Data, nil
 }
 
-// ## 获取用户账户和持仓信息
+// ##【逐仓】获取用户账户和持仓信息
 // https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb74886-77b5-11ed-9966-0242ac110003
 func GetSwapAccountPositionInfo(symb string) (data []map[string]any, err error) {
 	const symbol = "HTX GetSwapAccountPositionInfo"

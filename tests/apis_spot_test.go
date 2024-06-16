@@ -43,6 +43,15 @@ func Test_SpotBuyMarket(t *testing.T) {
 	t.Logf("order no: %v", no)
 }
 
+func Test_GetSpotMarginLoanInfo(t *testing.T) {
+	no, err := htx.GetSpotMarginLoanInfo([]string{"DOT"})
+	if err != nil {
+		t.Errorf("Error: %v", err)
+		return
+	}
+	t.Logf("order no: %v", no)
+}
+
 func Test_SpotSellMarket(t *testing.T) {
 	// no, err := htx.SpotSellMarket("DOT", 1.000064)
 	no, err := htx.SpotSellMarket("DOT", 0.1)
