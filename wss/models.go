@@ -44,10 +44,10 @@ type ReciveSwapAccountsMsg struct {
 }
 
 type ReciveSwapPositionMsg struct {
-	Symbol     string      `json:"symbol"`
-	SellVolume json.Number `json:"sell_volume"` // 持仓张数
-	BuyVolume  json.Number `json:"buy_volume"`  // 持仓张数
-	UpdateAt   float64     `json:"update_at"`   // 更新时间
+	Symbol     string  `json:"symbol"`
+	SellVolume int64   `json:"sell_volume"` // 持仓张数
+	BuyVolume  int64   `json:"buy_volume"`  // 持仓张数
+	UpdateAt   float64 `json:"update_at"`   // 更新时间
 }
 type ReciveSwapFundingRateMsg struct {
 	Symbol      string  `json:"symbol"`

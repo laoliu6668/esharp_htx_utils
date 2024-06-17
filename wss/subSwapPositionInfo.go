@@ -115,9 +115,11 @@ func SubSwapPositionInfo(reciveHandle func(ReciveSwapPositionMsg), logHandle fun
 				for _, v := range res.Data {
 					ret.Symbol = strings.ToUpper(v.Symbol)
 					if v.Direction == "buy" {
-						ret.BuyVolume = v.Volume
+						f, _ := v.Volume.Float64()
+						ret.BuyVolume = int64(f)
 					} else if v.Direction == "sell" {
-						ret.SellVolume = v.Volume
+						f, _ := v.Volume.Float64()
+						ret.SellVolume = int64(f)
 					}
 				}
 				ret.UpdateAt = htx.GetTimeFloat()
