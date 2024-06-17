@@ -55,6 +55,7 @@ func SubSwapAccountInfo(reciveHandle func(ReciveSwapAccountsMsg), logHandle func
 	ws.OnBinaryMessageReceived(func(message []byte) {
 		r, _ := gzip.NewReader(bytes.NewReader(message))
 		buff, _ := io.ReadAll(r)
+
 		type Msg struct {
 			Op      string `json:"op"`
 			Ch      string `json:"ch"`
@@ -96,6 +97,7 @@ func SubSwapAccountInfo(reciveHandle func(ReciveSwapAccountsMsg), logHandle func
 				//初始推送（忽略）
 				return
 			} else if msg.Event == "snapshot" {
+
 				type Msg struct {
 					Symbol          string      `json:"symbol"`
 					MarginAvailable json.Number `json:"margin_available"`  // 可用保金
@@ -111,7 +113,7 @@ func SubSwapAccountInfo(reciveHandle func(ReciveSwapAccountsMsg), logHandle func
 					Data  []Msg  `json:"data"`
 				}
 				res := TickerRes{}
-				json.Unmarshal([]byte(string(message)), &res)
+				json.Unmarshal([]byte(string(buff)), &res)
 				for _, v := range res.Data {
 					free, _ := v.MarginAvailable.Float64()
 					lock, _ := v.MarginFrozen.Float64()
