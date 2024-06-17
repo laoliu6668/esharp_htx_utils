@@ -33,3 +33,12 @@ type ReciveAccountsMsg struct {
 	MarginBalance json.Number `json:"margin_balance"`
 	MarginStatic  json.Number `json:"margin_static"`
 }
+
+type ReciveSwapAccountsMsg struct {
+	Symbol      string  `json:"symbol"`
+	FreeBalance float64 `json:"free_balance"` // 可用保金
+	LockBalance float64 `json:"lock_balance"` // 冻结保金
+	LiquidPrice float64 `json:"liquid_price"` // 强平价格
+	MarginRatio float64 `json:"margin_ratio"` // 保证金率
+	UpdateAt    float64 `json:"update_at"`    // 更新时间
+}
