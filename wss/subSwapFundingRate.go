@@ -85,7 +85,6 @@ func SubSwapFundingRate(reciveHandle func(ReciveSwapFundingRateMsg), logHandle f
 			json.Unmarshal(buff, &res)
 			// fmt.Printf("res.Data: %v\n", res.Data)
 			if len(res.Data) > 0 {
-				fmt.Printf("res.Data[0].FundingRate: %v\n", res.Data[0].FundingRate)
 				fr, _ := res.Data[0].FundingRate.Float64()
 				ft, _ := res.Data[0].FundingTime.Int64()
 				reciveHandle(ReciveSwapFundingRateMsg{
