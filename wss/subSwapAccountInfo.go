@@ -108,24 +108,25 @@ func SubSwapAccountInfo(reciveHandle func(ReciveSwapAccountsMsg), logHandle func
 					Ch    string `json:"ch"`
 					Type  string `json:"type"`
 					Event string `json:"event"`
-					Data  Msg    `json:"data"`
+					Data  []Msg  `json:"data"`
 				}
 				res := TickerRes{}
 				json.Unmarshal([]byte(string(message)), &res)
-				fmt.Printf("res: %s\n", res)
+				for _, v := range res.Data {
+					free, _ := v.MarginAvailable.Float64()
+					lock, _ := v.MarginFrozen.Float64()
+					lp, _ := v.LiquidPrice.Float64()
+					rr, _ := v.RiskRate.Float64()
+					reciveHandle(ReciveSwapAccountsMsg{
+						Symbol:      strings.ToUpper(v.Symbol),
+						FreeBalance: free,
+						LockBalance: lock,
+						LiquidPrice: lp,
+						MarginRatio: math.Round(rr*100*100) / 100,
+						UpdateAt:    htx.GetTimeFloat(),
+					})
+				}
 
-				free, _ := res.Data.MarginAvailable.Float64()
-				lock, _ := res.Data.MarginFrozen.Float64()
-				lp, _ := res.Data.LiquidPrice.Float64()
-				rr, _ := res.Data.RiskRate.Float64()
-				reciveHandle(ReciveSwapAccountsMsg{
-					Symbol:      strings.ToUpper(res.Data.Symbol),
-					FreeBalance: free,
-					LockBalance: lock,
-					LiquidPrice: lp,
-					MarginRatio: math.Round(rr*100*100) / 100,
-					UpdateAt:    htx.GetTimeFloat(),
-				})
 			}
 
 		}
