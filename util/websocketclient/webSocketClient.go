@@ -98,7 +98,7 @@ func New(wssUrl, proxyUrl string) *Wsc {
 	wsc := &Wsc{
 		Config: &Config{
 			WriteWait:         10 * time.Second,
-			MaxMessageSize:    512,
+			MaxMessageSize:    10240,
 			MinRecTime:        2 * time.Second,
 			MaxRecTime:        60 * time.Second,
 			RecFactor:         1.5,
@@ -252,12 +252,12 @@ func (wsc *Wsc) Connect() {
 				// 收到TextMessage回调
 				case websocket.TextMessage:
 					if wsc.onTextMessageReceived != nil {
-						go wsc.onTextMessageReceived(string(message))
+						wsc.onTextMessageReceived(string(message))
 					}
 				// 收到BinaryMessage回调
 				case websocket.BinaryMessage:
 					if wsc.onBinaryMessageReceived != nil {
-						go wsc.onBinaryMessageReceived(message)
+						wsc.onBinaryMessageReceived(message)
 					}
 				}
 			}

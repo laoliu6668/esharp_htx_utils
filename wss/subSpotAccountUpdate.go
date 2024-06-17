@@ -98,7 +98,7 @@ func SubSpotAccountUpdate(reciveHandle func(ReciveBalanceMsg), logHandle func(st
 			if res.Data.AccountType == "trade" {
 				a, _ := res.Data.Available.Float64()
 				b, _ := res.Data.Balance.Float64()
-				reciveHandle(ReciveBalanceMsg{
+				go reciveHandle(ReciveBalanceMsg{
 					Exchange:  htx.ExchangeName,
 					Symbol:    strings.ToUpper(res.Data.Currency),
 					AccountId: res.Data.AccountId,

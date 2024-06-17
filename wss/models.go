@@ -49,3 +49,9 @@ type ReciveSwapPositionMsg struct {
 	Volume    int64   `json:"volume"`    // 持仓张数
 	UpdateAt  float64 `json:"update_at"` // 更新时间
 }
+type ReciveSwapFundingRateMsg struct {
+	Symbol      string  `json:"symbol"`
+	FundingRate float64 `json:"funding_rate"` // buy or sell
+	FundingTime int64   `json:"funding_time"` // 10位时间戳
+	UpdateAt    float64 `json:"update_at"`    // 更新时间
+}

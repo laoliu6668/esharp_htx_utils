@@ -119,7 +119,7 @@ func SubSwapAccountInfo(reciveHandle func(ReciveSwapAccountsMsg), logHandle func
 					lock, _ := v.MarginFrozen.Float64()
 					lp, _ := v.LiquidPrice.Float64()
 					rr, _ := v.RiskRate.Float64()
-					reciveHandle(ReciveSwapAccountsMsg{
+					go reciveHandle(ReciveSwapAccountsMsg{
 						Symbol:      strings.ToUpper(v.Symbol),
 						FreeBalance: free,
 						LockBalance: lock,
