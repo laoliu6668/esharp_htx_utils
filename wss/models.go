@@ -42,3 +42,10 @@ type ReciveSwapAccountsMsg struct {
 	MarginRatio float64 `json:"margin_ratio"` // 保证金率
 	UpdateAt    float64 `json:"update_at"`    // 更新时间
 }
+
+type ReciveSwapPositionMsg struct {
+	Symbol    string  `json:"symbol"`
+	Direction string  `json:"direction"` // buy or sell
+	Volume    int64   `json:"volume"`    // 持仓张数
+	UpdateAt  float64 `json:"update_at"` // 更新时间
+}
