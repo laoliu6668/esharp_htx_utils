@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"strings"
 
 	htx "github.com/laoliu6668/esharp_htx_utils"
 	"github.com/laoliu6668/esharp_htx_utils/util/websocketclient"
@@ -95,14 +96,31 @@ func SubSwapPositionInfo(reciveHandle func(ReciveSwapPositionMsg), logHandle fun
 				// 初始推送（忽略）
 				return
 			} else if msg.Event == "snapshot" {
+				type Data struct {
+					Symbol    string      `json:"symbol"`
+					Direction string      `json:"direction"` // buy or sell
+					Volume    json.Number `json:"volume"`    // 持仓张数
+					UpdateAt  float64     `json:"update_at"` // 更新时间
+				}
 				type Msg struct {
-					Data []ReciveSwapPositionMsg `json:"data"`
+					Data []Data `json:"data"`
 				}
 				res := Msg{}
-				json.Unmarshal([]byte(string(buff)), &res)
-				for _, v := range res.Data {
-					reciveHandle(v)
+				err := json.Unmarshal([]byte(string(buff)), &res)
+				if err != nil {
+					errHandle(fmt.Errorf("decode: %v", err))
+					return
 				}
+				ret := ReciveSwapPositionMsg{}
+				for _, v := range res.Data {
+					ret.Symbol = strings.ToUpper(v.Symbol)
+					if v.Direction == "buy" {
+						ret.BuyVolume = v.Volume
+					} else if v.Direction == "sell" {
+						ret.SellVolume = v.Volume
+					}
+				}
+				ret.UpdateAt = htx.GetTimeFloat()
 			}
 		}
 	})
