@@ -18,15 +18,15 @@ import (
 func SubSwapAccountInfo(reciveHandle func(ReciveSwapAccountsMsg), logHandle func(string), errHandle func(error)) {
 
 	flag := "SubSwapAccountInfo"
-	gateway := "api.hbdm.com'"
+	gateway := "api.hbdm.com"
 	path := "/linear-swap-notification"
 	mp := map[string]any{
-		"accessKey":        htx.ApiConfig.AccessKey,
-		"timestamp":        htx.UTCTimeNow(),
-		"signatureMethod":  "HmacSHA256",
-		"signatureVersion": "2.1",
+		"AccessKeyId":      htx.ApiConfig.AccessKey,
+		"Timestamp":        htx.UTCTimeNow(),
+		"SignatureMethod":  "HmacSHA256",
+		"SignatureVersion": "2",
 	}
-	mp["signature"] = htx.Signature("get", gateway, path, mp, htx.ApiConfig.SecretKey)
+	mp["Signature"] = htx.Signature("get", gateway, path, mp, htx.ApiConfig.SecretKey)
 	requrl := fmt.Sprintf("wss://%s%s", gateway, path)
 	proxyUrl := ""
 	if htx.UseProxy {
@@ -40,7 +40,7 @@ func SubSwapAccountInfo(reciveHandle func(ReciveSwapAccountsMsg), logHandle func
 		go errHandle(err)
 	})
 	ws.OnDisconnected(func(err error) {
-		errHandle(err)
+		go errHandle(err)
 	})
 	ws.OnConnected(func() {
 		logHandle(fmt.Sprintf("## connected %v\n", flag))
@@ -49,7 +49,8 @@ func SubSwapAccountInfo(reciveHandle func(ReciveSwapAccountsMsg), logHandle func
 		mp["type"] = "api"
 		authBuf, _ := json.Marshal(mp)
 		ws.SendTextMessage(string(authBuf))
-		fmt.Printf("AuthInfo: %v\n\n", string(authBuf))
+		// fmt.Printf("AuthInfo: %v\n\n", string(authBuf))
+		logHandle(fmt.Sprintf("AuthInfo: %v\n\n", string(authBuf)))
 	})
 	ws.OnBinaryMessageReceived(func(message []byte) {
 		r, _ := gzip.NewReader(bytes.NewReader(message))
@@ -58,6 +59,7 @@ func SubSwapAccountInfo(reciveHandle func(ReciveSwapAccountsMsg), logHandle func
 			Op      string `json:"op"`
 			Ch      string `json:"ch"`
 			Type    string `json:"type"`
+			Topic   string `json:"topic"`
 			ErrCode int    `json:"err-code"`
 			Event   string `json:"event"`
 		}
@@ -89,7 +91,7 @@ func SubSwapAccountInfo(reciveHandle func(ReciveSwapAccountsMsg), logHandle func
 				logHandle(fmt.Sprintf("subed: %v\n", string(bf)))
 				ws.SendTextMessage(string(bf))
 			}
-		} else if msg.Op == "notify" && msg.Type == "accounts" {
+		} else if msg.Op == "notify" && msg.Topic == "accounts" {
 			if msg.Event == "init" {
 				//初始推送（忽略）
 				return
@@ -110,6 +112,8 @@ func SubSwapAccountInfo(reciveHandle func(ReciveSwapAccountsMsg), logHandle func
 				}
 				res := TickerRes{}
 				json.Unmarshal([]byte(string(message)), &res)
+				fmt.Printf("res: %s\n", res)
+
 				free, _ := res.Data.MarginAvailable.Float64()
 				lock, _ := res.Data.MarginFrozen.Float64()
 				lp, _ := res.Data.LiquidPrice.Float64()
