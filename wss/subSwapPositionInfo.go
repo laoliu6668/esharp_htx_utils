@@ -18,13 +18,7 @@ func SubSwapPositionInfo(reciveHandle func(ReciveSwapPositionMsg), logHandle fun
 	title := "SubPositionsContractCode"
 	gateway := "api.hbdm.com"
 	path := "/linear-swap-notification"
-	mp := map[string]any{
-		"AccessKeyId":      htx.ApiConfig.AccessKey,
-		"Timestamp":        htx.UTCTimeNow(),
-		"SignatureMethod":  "HmacSHA256",
-		"SignatureVersion": "2",
-	}
-	mp["Signature"] = htx.Signature("get", gateway, path, mp, htx.ApiConfig.SecretKey)
+
 	requrl := fmt.Sprintf("wss://%s%s", gateway, path)
 	proxyUrl := ""
 	if htx.UseProxy {
@@ -43,14 +37,19 @@ func SubSwapPositionInfo(reciveHandle func(ReciveSwapPositionMsg), logHandle fun
 	})
 	ws.OnConnected(func() {
 		logHandle(fmt.Sprintf("connected %s", title))
-		// fmt.Println("\n## connected SubAccountUpdate")
 		// 发送鉴权消息
+		mp := map[string]any{
+			"AccessKeyId":      htx.ApiConfig.AccessKey,
+			"Timestamp":        htx.UTCTimeNow(),
+			"SignatureMethod":  "HmacSHA256",
+			"SignatureVersion": "2",
+		}
+		mp["Signature"] = htx.Signature("get", gateway, path, mp, htx.ApiConfig.SecretKey)
 		mp["op"] = "auth"
 		mp["type"] = "api"
 		authBuf, _ := json.Marshal(mp)
 		ws.SendTextMessage(string(authBuf))
 		logHandle(fmt.Sprintf("AuthInfo: %v\n", string(authBuf)))
-		// fmt.Printf("AuthInfo: %v\n\n", string(authBuf))
 	})
 	ws.OnBinaryMessageReceived(func(message []byte) {
 		r, _ := gzip.NewReader(bytes.NewReader(message))
@@ -100,7 +99,8 @@ func SubSwapPositionInfo(reciveHandle func(ReciveSwapPositionMsg), logHandle fun
 					Symbol    string      `json:"symbol"`
 					Direction string      `json:"direction"` // buy or sell
 					Volume    json.Number `json:"volume"`    // 持仓张数
-					UpdateAt  float64     `json:"update_at"` // 更新时间
+
+					UpdateAt float64 `json:"update_at"` // 更新时间
 				}
 				type Msg struct {
 					Data []Data `json:"data"`
@@ -123,6 +123,7 @@ func SubSwapPositionInfo(reciveHandle func(ReciveSwapPositionMsg), logHandle fun
 					}
 				}
 				ret.UpdateAt = htx.GetTimeFloat()
+				reciveHandle(ret)
 			}
 		}
 	})

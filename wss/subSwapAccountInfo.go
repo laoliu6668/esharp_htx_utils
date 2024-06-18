@@ -20,13 +20,7 @@ func SubSwapAccountInfo(reciveHandle func(ReciveSwapAccountsMsg), logHandle func
 	flag := "SubSwapAccountInfo"
 	gateway := "api.hbdm.com"
 	path := "/linear-swap-notification"
-	mp := map[string]any{
-		"AccessKeyId":      htx.ApiConfig.AccessKey,
-		"Timestamp":        htx.UTCTimeNow(),
-		"SignatureMethod":  "HmacSHA256",
-		"SignatureVersion": "2",
-	}
-	mp["Signature"] = htx.Signature("get", gateway, path, mp, htx.ApiConfig.SecretKey)
+
 	requrl := fmt.Sprintf("wss://%s%s", gateway, path)
 	proxyUrl := ""
 	if htx.UseProxy {
@@ -45,6 +39,13 @@ func SubSwapAccountInfo(reciveHandle func(ReciveSwapAccountsMsg), logHandle func
 	ws.OnConnected(func() {
 		logHandle(fmt.Sprintf("## connected %v\n", flag))
 		// 发送鉴权消息
+		mp := map[string]any{
+			"AccessKeyId":      htx.ApiConfig.AccessKey,
+			"Timestamp":        htx.UTCTimeNow(),
+			"SignatureMethod":  "HmacSHA256",
+			"SignatureVersion": "2",
+		}
+		mp["Signature"] = htx.Signature("get", gateway, path, mp, htx.ApiConfig.SecretKey)
 		mp["op"] = "auth"
 		mp["type"] = "api"
 		authBuf, _ := json.Marshal(mp)

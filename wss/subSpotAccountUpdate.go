@@ -15,13 +15,7 @@ func SubSpotAccountUpdate(reciveHandle func(ReciveBalanceMsg), logHandle func(st
 
 	gateway := "api.huobi.pro"
 	path := "/ws/v2"
-	mp := map[string]any{
-		"accessKey":        htx.ApiConfig.AccessKey,
-		"timestamp":        htx.UTCTimeNow(),
-		"signatureMethod":  "HmacSHA256",
-		"signatureVersion": "2.1",
-	}
-	mp["signature"] = htx.Signature("get", gateway, path, mp, htx.ApiConfig.SecretKey)
+
 	requrl := fmt.Sprintf("wss://%s%s", gateway, path)
 	proxyUrl := ""
 	if htx.UseProxy {
@@ -40,6 +34,13 @@ func SubSpotAccountUpdate(reciveHandle func(ReciveBalanceMsg), logHandle func(st
 	ws.OnConnected(func() {
 		go logHandle("## connected SubAccountUpdate\n")
 		// 发送鉴权消息
+		mp := map[string]any{
+			"accessKey":        htx.ApiConfig.AccessKey,
+			"timestamp":        htx.UTCTimeNow(),
+			"signatureMethod":  "HmacSHA256",
+			"signatureVersion": "2.1",
+		}
+		mp["signature"] = htx.Signature("get", gateway, path, mp, htx.ApiConfig.SecretKey)
 		mp["authType"] = "api"
 		authMap := map[string]any{
 			"action": "req",
