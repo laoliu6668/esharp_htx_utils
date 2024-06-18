@@ -360,7 +360,7 @@ func GetSwapAccountBalance() (balance float64, err error) {
 
 // 空模型
 // volume 张数
-func SwapBuyClose(symb string, volume int) (data map[string]any, err error) {
+func SwapBuyClose(symb string, volume int) (orderId string, err error) {
 	// 买入平空
 	const symbol = "HTX SwapBuyClose"
 	body, _, err := htx.ApiConfig.Post(gateway_hbdm, "/linear-swap-api/v1/swap_order", map[string]any{
@@ -389,11 +389,11 @@ func SwapBuyClose(symb string, volume int) (data map[string]any, err error) {
 		return
 	}
 
-	return res.Data, nil
+	return fmt.Sprintf("%v", res.Data["order_id_str"]), nil
 }
 
 // volume 张数
-func SwapSellOpen(symb string, volume int) (data map[string]any, err error) {
+func SwapSellOpen(symb string, volume int) (orderId string, err error) {
 	// 卖出开空
 	const symbol = "HTX SwapSellOpen"
 	body, _, err := htx.ApiConfig.Post(gateway_hbdm, "/linear-swap-api/v1/swap_order", map[string]any{
@@ -422,11 +422,11 @@ func SwapSellOpen(symb string, volume int) (data map[string]any, err error) {
 		return
 	}
 
-	return res.Data, nil
+	return fmt.Sprintf("%v", res.Data["order_id_str"]), nil
 }
 
 // volume 张数
-func SwapBuyOpen(symb string, volume int) (data any, err error) {
+func SwapBuyOpen(symb string, volume int) (data string, err error) {
 	// 买入开多
 	const symbol = "HTX SwapSellOpen"
 	body, _, err := htx.ApiConfig.Post(gateway_hbdm, "/linear-swap-api/v1/swap_order", map[string]any{
@@ -455,11 +455,11 @@ func SwapBuyOpen(symb string, volume int) (data any, err error) {
 		return
 	}
 
-	return res.Data, nil
+	return fmt.Sprintf("%v", res.Data["order_id_str"]), nil
 }
 
 // volume 张数
-func SwapSellClose(symb string, volume int) (data any, err error) {
+func SwapSellClose(symb string, volume int) (data string, err error) {
 	// 卖出平多
 	const symbol = "HTX SwapSellOpen"
 	body, _, err := htx.ApiConfig.Post(gateway_hbdm, "/linear-swap-api/v1/swap_order", map[string]any{
@@ -488,5 +488,6 @@ func SwapSellClose(symb string, volume int) (data any, err error) {
 		return
 	}
 
-	return res.Data, nil
+	return fmt.Sprintf("%v", res.Data["order_id_str"]), nil
+
 }

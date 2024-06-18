@@ -35,7 +35,7 @@ func Test_GetSpotAccountBalance(t *testing.T) {
 
 func Test_SpotBuyMarket(t *testing.T) {
 	// 	no, err := htx.SpotBuyMarket("DOT", 9.0)
-	no, err := htx.SpotBuyMarket("DOT", 11.0)
+	no, err := htx.SpotBuyMarket("DOT", 32.0)
 	if err != nil {
 		t.Errorf("Error: %v", err)
 		return
