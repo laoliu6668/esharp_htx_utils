@@ -34,7 +34,7 @@ func Test_SpotToSwapTransfer(t *testing.T) {
 }
 
 func Test_SwapToSpotTransfer(t *testing.T) {
-	data, err := htx.SwapToSpotTransfer(10, "dot")
+	data, err := htx.SwapToSpotTransfer(2, "dot")
 	if err != nil {
 		t.Errorf("Error: %v", err)
 		return

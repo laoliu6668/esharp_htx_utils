@@ -1,4 +1,5 @@
 *.exe
 *.tar
 *.json
-tests/init_test.go
+init_test.go
+/tests/run
