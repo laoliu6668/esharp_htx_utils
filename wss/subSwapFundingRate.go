@@ -76,7 +76,7 @@ func SubSwapFundingRate(reciveHandle func(ReciveSwapFundingRateMsg), logHandle f
 			type ReciveSwapFundingRate struct {
 				Symbol      string      `json:"symbol"`
 				FundingRate json.Number `json:"funding_rate"`
-				FundingTime json.Number `json:"funding_time"` // 13位时间戳
+				FundingTime json.Number `json:"settlement_time"` // 13位时间戳
 			}
 			type Msg struct {
 				Data []ReciveSwapFundingRate `json:"data"`
