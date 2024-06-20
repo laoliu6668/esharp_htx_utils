@@ -95,6 +95,7 @@ func SubSpotOrder(reciveHandle func(ReciveSpotOrderMsg), logHandle func(string),
 				OrderSize   json.Number `json:"orderSize"`
 				OrderValue  json.Number `json:"orderValue"`
 				ExecAmt     json.Number `json:"execAmt"`
+				OrderSource string      `json:"orderSource"`
 				TradeTime   int64       `json:"tradeTime"`
 				// SeqNum      int64       `json:"seqNum"`
 			}
@@ -104,6 +105,10 @@ func SubSpotOrder(reciveHandle func(ReciveSpotOrderMsg), logHandle func(string),
 			res := TickerRes{}
 			json.Unmarshal([]byte(message), &res)
 			symbol := strings.Replace(strings.ToUpper(res.Data.Symbol), "USDT", "", 1)
+			if res.Data.OrderSource != "spot-api" {
+				// 只处理spot-api的订单
+				return
+			}
 
 			if res.Data.Type == "buy-market" {
 				// 市价买单

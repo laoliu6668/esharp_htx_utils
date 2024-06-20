@@ -2,6 +2,7 @@ package htx_test
 
 import (
 	"encoding/json"
+	"time"
 
 	htx "github.com/laoliu6668/esharp_htx_utils/apis"
 	"github.com/laoliu6668/esharp_htx_utils/util"
@@ -102,17 +103,17 @@ func Test_GetSwapAccountBalance(t *testing.T) {
 }
 func Test_SwapSellOpen(t *testing.T) {
 	// 卖出开空
-	data, err := htx.SwapSellOpen("DOT", 1)
+	data, err := htx.SwapSellOpen("DOT", 2)
 	if err != nil {
 		t.Errorf("Error: %v", err)
 		return
 	}
-	t.Logf("order res: %v", data)
+	t.Logf("order res: %v ts: %v", data, time.Now().UnixNano())
 }
 
 func Test_SwapBuyClose(t *testing.T) {
 	// 买入平空
-	data, err := htx.SwapBuyClose("DOT", 1)
+	data, err := htx.SwapBuyClose("DOT", 4)
 	if err != nil {
 		t.Errorf("Error: %v", err)
 		return

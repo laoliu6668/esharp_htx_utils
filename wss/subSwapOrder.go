@@ -98,6 +98,7 @@ func SubSwapOrder(reciveHandle func(ReciveSwapOrderMsg), logHandle func(string),
 				Symbol         string      `json:"symbol"`
 				OrderIdStr     string      `json:"order_id_str"`
 				Direction      string      `json:"direction"`
+				OrderSource    string      `json:"order_source"`
 				Offset         string      `json:"offset"`
 				Volume         json.Number `json:"volume"`
 				TradeVolume    json.Number `json:"trade_volume"`
@@ -109,6 +110,9 @@ func SubSwapOrder(reciveHandle func(ReciveSwapOrderMsg), logHandle func(string),
 			err := json.Unmarshal(buff, &res)
 			if err != nil {
 				errHandle(fmt.Errorf("decode: %v", err))
+				return
+			}
+			if res.OrderSource != "api" {
 				return
 			}
 			// if res.OrderPriceType == "optimal_20" && res.Status == 6 {

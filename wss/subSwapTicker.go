@@ -105,7 +105,7 @@ func SubSwapTicker(symbols []string, reciveHandle func(ReciveData, []byte), logH
 				go errHandle(fmt.Errorf("gzipClose: %v", err))
 				return
 			}
-			go reciveHandle(ReciveData{
+			reciveHandle(ReciveData{
 				Exchange: htx.ExchangeName,
 				Symbol:   res.Ch,
 				Ticker:   ticker,
