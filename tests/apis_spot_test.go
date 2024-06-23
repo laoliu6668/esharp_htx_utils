@@ -34,6 +34,16 @@ func Test_GetSpotAccountBalance(t *testing.T) {
 	t.Logf("data len: %v", len(data))
 }
 
+// 查询订单详情
+func Test_OrderDetail(t *testing.T) {
+	no, err := htx.SpotOrderDetail("1088416166087747")
+	if err != nil {
+		t.Errorf("Error: %v", err)
+		return
+	}
+	t.Logf("order no: %v", no)
+}
+
 func Test_SpotBuyMarket(t *testing.T) {
 	// 	no, err := htx.SpotBuyMarket("DOT", 9.0)
 	no, err := htx.SpotBuyMarket("DOT", 11.0)
@@ -55,7 +65,7 @@ func Test_GetSpotMarginLoanInfo(t *testing.T) {
 
 func Test_SpotSellMarket(t *testing.T) {
 	// no, err := htx.SpotSellMarket("DOT", 1.000064)
-	no, err := htx.SpotSellMarket("DOT", 3)
+	no, err := htx.SpotSellMarket("DOT", 1.9391)
 	if err != nil {
 		t.Errorf("Error: %v", err)
 		return

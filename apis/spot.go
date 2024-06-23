@@ -117,6 +117,37 @@ func GetSpotAccountBalance(account_id int) (data []map[string]any, err error) {
 	return data, nil
 }
 
+type ApiResponseV1Any struct {
+	// 定义响应结构体
+	Data any `json:"data"`
+	htx.ApiResponseV1
+}
+
+// 订单详情
+func SpotOrderDetail(orderId string) (data any, err error) {
+	const symbol = "HTX SpotOrderDetail"
+	body, _, err := htx.ApiConfig.Get(gateway_huobiPro, "/v1/order/orders/"+orderId, nil)
+	if err != nil {
+		err = fmt.Errorf("%s err: %v", symbol, err)
+		fmt.Println(err)
+		return
+	}
+	fmt.Printf("string(body): %v\n", string(body))
+	res := ApiResponseV1Any{}
+	err = json.Unmarshal(body, &res)
+	if err != nil {
+		err = fmt.Errorf("%s jsonDecodeErr: %v", symbol, err)
+		fmt.Println(err)
+		return
+	}
+	if !res.Success() {
+		err = fmt.Errorf("%s false:%v", symbol, res.Message)
+		return
+	}
+
+	return res.Data, nil
+}
+
 // ### 现货下单
 // doc: https://www.htx.com/zh-cn/opend/newApiPages/?id=7ec44bc5-7773-11ed-9966-0242ac110003
 type ApiResponseV1String struct {
