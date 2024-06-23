@@ -36,7 +36,7 @@ func Test_GetSpotAccountBalance(t *testing.T) {
 
 // 查询订单详情
 func Test_OrderDetail(t *testing.T) {
-	no, err := htx.SpotOrderDetail("1088416166087747")
+	no, err := htx.SpotOrderDetail("1088425134264460")
 	if err != nil {
 		t.Errorf("Error: %v", err)
 		return

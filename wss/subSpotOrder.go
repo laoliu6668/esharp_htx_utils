@@ -126,7 +126,6 @@ func SubSpotOrder(reciveHandle func(ReciveSpotOrderMsg), logHandle func(string),
 					ordervalue, _ := res.Data.OrderValue.Float64()
 					tradePrice, _ := res.Data.TradePrice.Float64()
 					tradeValue, _ := res.Data.ExecAmt.Float64()
-					tradeVolume, _ := res.Data.TradeVolume.Float64()
 					msg := ReciveSpotOrderMsg{
 						Exchange:    "htx",
 						Symbol:      symbol,
@@ -135,7 +134,7 @@ func SubSpotOrder(reciveHandle func(ReciveSpotOrderMsg), logHandle func(string),
 						OrderValue:  ordervalue,
 						TradePrice:  tradePrice,
 						TradeValue:  tradeValue,
-						TradeVolume: tradeVolume,
+						TradeVolume: tradeValue / tradePrice,
 						Status:      2,
 						FilledAt:    res.Data.TradeTime,
 					}
