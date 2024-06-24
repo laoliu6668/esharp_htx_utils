@@ -10,6 +10,7 @@ import (
 	"time"
 
 	htx "github.com/laoliu6668/esharp_htx_utils"
+	"github.com/laoliu6668/esharp_htx_utils/util"
 	"github.com/laoliu6668/esharp_htx_utils/util/websocketclient"
 )
 
@@ -27,6 +28,9 @@ func SubSpotTicker(symbols []string, reciveHandle func(ReciveData, []byte), logH
 	ws.OnDisconnected(func(err error) {
 		go errHandle(err)
 	})
+	ws.OnSentError(func(err error) {
+		go errHandle(fmt.Errorf("OnSentError: %v", err))
+	})
 	ws.OnConnected(func() {
 		go logHandle("## connected SubSpotTicker")
 		for _, symbol := range symbols {
@@ -35,19 +39,28 @@ func SubSpotTicker(symbols []string, reciveHandle func(ReciveData, []byte), logH
 		go logHandle(fmt.Sprintf("Sub: %v\n", strings.Join(symbols, "、")))
 	})
 	ws.OnBinaryMessageReceived(func(message []byte) {
-		r, _ := gzip.NewReader(bytes.NewReader(message))
-		buff, _ := io.ReadAll(r)
+		r, err := gzip.NewReader(bytes.NewReader(message))
+		if err != nil {
+			go errHandle(fmt.Errorf("gzip.NewReader: %v", err))
+			return
+		}
+		buff, err := io.ReadAll(r)
+		if err != nil {
+			go errHandle(fmt.Errorf("io.ReadAll: %v", err))
+			return
+		}
+
 		mp := map[string]any{}
 		d := json.NewDecoder(strings.NewReader(string(buff)))
 		d.UseNumber()
-		err := d.Decode(&mp)
+		err = d.Decode(&mp)
 		if err != nil {
 			go errHandle(fmt.Errorf("decode: %v", err))
 			return
 		}
 		if _, ok := mp["ping"]; ok {
 			// 收到ping 回复pong
-			timestamp, _ := mp["ping"].(json.Number).Int64()
+			timestamp := util.ParseInt(mp["ping"], 0)
 			ws.SendTextMessage(fmt.Sprintf(`{"pong":%d}`, timestamp))
 		} else if _, ok := mp["ch"]; ok {
 			type Tick struct {
