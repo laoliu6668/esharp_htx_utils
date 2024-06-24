@@ -14,7 +14,7 @@ import (
 	"github.com/laoliu6668/esharp_htx_utils/util/websocketclient"
 )
 
-func SubSpotTicker(symbols []string, reciveHandle func(ReciveData, []byte), logHandle func(string), errHandle func(error)) {
+func SubSpotTicker(symbols []string, reciveHandle func(ReciveData), logHandle func(string), errHandle func(error)) {
 	gateway := "wss://api.huobi.pro/wss"
 	proxyUrl := ""
 	if htx.UseProxy {
@@ -93,24 +93,10 @@ func SubSpotTicker(symbols []string, reciveHandle func(ReciveData, []byte), logH
 				Sell:     Values{Price: res.Tick.Ask, Size: res.Tick.AskSize},
 				UpdateAt: htx.GetTimeFloat(),
 			}
-			input, _ := json.Marshal(ticker)
-			var buf bytes.Buffer
-			gw := gzip.NewWriter(&buf)
-			defer gw.Close()
-			_, err = gw.Write(input)
-			if err != nil {
-				go errHandle(err)
-				return
-			}
-			if err := gw.Close(); err != nil {
-				go errHandle(err)
-				return
-			}
 			go reciveHandle(ReciveData{
 				Exchange: htx.ExchangeName,
 				Symbol:   res.Ch,
 				Ticker:   ticker},
-				buf.Bytes(),
 			)
 		} else if _, ok := mp["subbed"]; ok {
 			// go logHandle(fmt.Sprintf("subbed: %v", string(buff)))
