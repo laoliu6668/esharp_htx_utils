@@ -100,7 +100,7 @@ func SubSpotTicker(symbols []string, reciveHandle func(ReciveData, []byte), logH
 				buf.Bytes(),
 			)
 		} else if _, ok := mp["subbed"]; ok {
-			go logHandle(fmt.Sprintf("subbed: %v", string(buff)))
+			// go logHandle(fmt.Sprintf("subbed: %v", string(buff)))
 		} else {
 			go logHandle(fmt.Sprintf("unknown message: %v", string(buff)))
 		}
