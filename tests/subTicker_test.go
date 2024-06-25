@@ -12,7 +12,7 @@ func Test_SubSpotTicker(t *testing.T) {
 	symbols := []string{"DOT", "BTC", "ETH", "DOGE", "XRP"}
 	htx_wss.SubSpotTicker(
 		symbols,
-		func(m htx_wss.ReciveData, _ []byte) {
+		func(m htx_wss.ReciveData) {
 			buf, _ := json.Marshal(m.Ticker)
 			fmt.Println(string(buf))
 		},

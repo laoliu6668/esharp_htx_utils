@@ -13,7 +13,7 @@ import (
 	"github.com/laoliu6668/esharp_htx_utils/util/websocketclient"
 )
 
-func SubSwapTicker(symbols []string, reciveHandle func(ReciveData, []byte), logHandle func(string), errHandle func(error)) {
+func SubSwapTicker(symbols []string, reciveHandle func(Ticker), logHandle func(string), errHandle func(error)) {
 	gateway := "wss://api.hbdm.com/linear-swap-ws"
 	proxyUrl := ""
 	if htx.UseProxy {
@@ -85,32 +85,14 @@ func SubSwapTicker(symbols []string, reciveHandle func(ReciveData, []byte), logH
 				sellPrice = res.Tick.Ask[0]
 				sellSize = res.Tick.Ask[1]
 			}
-			ticker := Ticker{
+
+			reciveHandle(Ticker{
 				Exchange: htx.ExchangeName,
 				Symbol:   res.Ch,
 				Buy:      Values{Price: buyPrice, Size: buySize},
 				Sell:     Values{Price: sellPrice, Size: sellSize},
 				UpdateAt: htx.GetTimeFloat(),
-			}
-			input, _ := json.Marshal(ticker)
-			var buf bytes.Buffer
-			gw := gzip.NewWriter(&buf)
-			defer gw.Close()
-			_, err = gw.Write(input)
-			if err != nil {
-				go errHandle(fmt.Errorf("gzipWrite: %v", err))
-				return
-			}
-			if err := gw.Close(); err != nil {
-				go errHandle(fmt.Errorf("gzipClose: %v", err))
-				return
-			}
-			reciveHandle(ReciveData{
-				Exchange: htx.ExchangeName,
-				Symbol:   res.Ch,
-				Ticker:   ticker,
-			}, buf.Bytes(),
-			)
+			})
 		} else if _, ok := mp["subbed"]; ok {
 			go logHandle(fmt.Sprintf("subbed: %v", string(buff)))
 		} else {
