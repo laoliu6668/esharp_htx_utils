@@ -93,7 +93,7 @@ func SubSpotTicker(symbols []string, reciveHandle func(ReciveData), logHandle fu
 				Sell:     Values{Price: res.Tick.Ask, Size: res.Tick.AskSize},
 				UpdateAt: htx.GetTimeFloat(),
 			}
-			go reciveHandle(ReciveData{
+			reciveHandle(ReciveData{
 				Exchange: htx.ExchangeName,
 				Symbol:   res.Ch,
 				Ticker:   ticker},
