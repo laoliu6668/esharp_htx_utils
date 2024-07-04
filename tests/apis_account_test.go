@@ -25,7 +25,7 @@ func Test_GetUserAccount(t *testing.T) {
 }
 
 func Test_SpotToSwapTransfer(t *testing.T) {
-	data, err := htx.SpotToSwapTransfer(2, "dot")
+	data, err := htx.SpotToSwapTransfer(1, "dot")
 	if err != nil {
 		t.Errorf("Error: %v", err)
 		return

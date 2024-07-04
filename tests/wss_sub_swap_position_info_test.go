@@ -14,6 +14,7 @@ func TestWssSubSwapPositionInfo(t *testing.T) {
 
 func sub() {
 	htx_wss.SubSwapPositionInfo(
+		[]string{"DOT"},
 		func(m htx_wss.ReciveSwapPositionMsg) {
 			fmt.Printf("m: %v\n", m)
 		},

@@ -74,7 +74,7 @@ func Test_GetSwapPositionInfo(t *testing.T) {
 	t.Logf("data len: %v", len(data))
 }
 func Test_GetSwapAccountPositionInfo(t *testing.T) {
-	data, err := htx.GetSwapAccountPositionInfo("")
+	data, err := htx.GetSwapAccountPositionInfo("BTC")
 	if err != nil {
 		t.Errorf("Error: %v", err)
 		return
@@ -113,7 +113,7 @@ func Test_SwapSellOpen(t *testing.T) {
 
 func Test_SwapBuyClose(t *testing.T) {
 	// 买入平空
-	data, err := htx.SwapBuyClose("DOT", 3)
+	data, err := htx.SwapBuyClose("DOT", 1)
 	if err != nil {
 		t.Errorf("Error: %v", err)
 		return

@@ -14,7 +14,7 @@ import (
 
 // 【逐仓】持仓变动更新数据（sub）
 // https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb70c13-77b5-11ed-9966-0242ac110003
-func SubSwapPositionInfo(reciveHandle func(ReciveSwapPositionMsg), logHandle func(string), errHandle func(error)) {
+func SubSwapPositionInfo(symbols []string, reciveHandle func(ReciveSwapPositionMsg), logHandle func(string), errHandle func(error)) {
 	title := "SubPositionsContractCode"
 	gateway := "api.hbdm.com"
 	path := "/linear-swap-notification"
@@ -81,14 +81,16 @@ func SubSwapPositionInfo(reciveHandle func(ReciveSwapPositionMsg), logHandle fun
 		} else if msg.Op == "auth" {
 			if msg.Type == "api" && msg.ErrCode == 0 {
 				// 订阅账户信息
-				subAccountUpdateMp := map[string]any{
-					"op":    "sub",
-					"topic": "positions.*",
+
+				for _, s := range symbols {
+					subAccountUpdateMp := map[string]any{
+						"op":    "sub",
+						"topic": fmt.Sprintf("positions.%s-USDT", strings.ToUpper(s)),
+					}
+					bf, _ := json.Marshal(subAccountUpdateMp)
+					ws.SendTextMessage(string(bf))
 				}
-				bf, _ := json.Marshal(subAccountUpdateMp)
-				logHandle(fmt.Sprintf("sub: %v\n", string(bf)))
-				// fmt.Printf("sub: %v\n", string(bf))
-				ws.SendTextMessage(string(bf))
+				logHandle(fmt.Sprintf("sub: %s\n", strings.Join(symbols, ",")))
 			}
 		} else if msg.Op == "notify" && msg.Topic == "positions" {
 			if msg.Event == "init" {

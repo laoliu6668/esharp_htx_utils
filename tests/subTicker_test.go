@@ -29,8 +29,8 @@ func Test_SubSwapTicker(t *testing.T) {
 	symbols := []string{"DOT", "BTC", "ETH", "DOGE", "XRP"}
 	htx_wss.SubSwapTicker(
 		symbols,
-		func(m htx_wss.ReciveData, _ []byte) {
-			buf, _ := json.Marshal(m.Ticker)
+		func(m htx_wss.Ticker) {
+			buf, _ := json.Marshal(m)
 			fmt.Println(string(buf))
 		},
 		func(log string) {
