@@ -15,6 +15,7 @@ import (
 
 // 【逐仓】订阅订单成交数据（sub）
 // https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb706b4-77b5-11ed-9966-0242ac110003
+// reciveHandle:并发 logHandle:并发 errHandle:并发
 func SubSwapOrder(reciveHandle func(ReciveSwapOrderMsg), logHandle func(string), errHandle func(error)) {
 
 	flag := "SubSwapOrder"
@@ -66,7 +67,7 @@ func SubSwapOrder(reciveHandle func(ReciveSwapOrderMsg), logHandle func(string),
 		msg := Msg{}
 		err := json.Unmarshal(buff, &msg)
 		if err != nil {
-			errHandle(fmt.Errorf("decode: %v", err))
+			go errHandle(fmt.Errorf("decode: %v", err))
 			return
 		}
 		if msg.Op == "ping" {
@@ -88,7 +89,7 @@ func SubSwapOrder(reciveHandle func(ReciveSwapOrderMsg), logHandle func(string),
 					"topic": "orders.*",
 				}
 				bf, _ := json.Marshal(subAccountUpdateMp)
-				logHandle(fmt.Sprintf("subed: %v\n", string(bf)))
+				go logHandle(fmt.Sprintf("subed: %v\n", string(bf)))
 				ws.SendTextMessage(string(bf))
 			}
 		} else if msg.Op == "notify" {
@@ -109,7 +110,7 @@ func SubSwapOrder(reciveHandle func(ReciveSwapOrderMsg), logHandle func(string),
 			res := TickerRes{}
 			err := json.Unmarshal(buff, &res)
 			if err != nil {
-				errHandle(fmt.Errorf("decode: %v", err))
+				go errHandle(fmt.Errorf("decode: %v", err))
 				return
 			}
 			if res.OrderSource != "api" {
@@ -122,13 +123,15 @@ func SubSwapOrder(reciveHandle func(ReciveSwapOrderMsg), logHandle func(string),
 				tradeAvgPrice, _ := res.TradeAvgPrice.Float64()
 				tradeTurnover, _ := res.TradeTurnover.Float64()
 
+				// 面值
+				size := tradeTurnover / tradeAvgPrice / trade_volume
 				ret := ReciveSwapOrderMsg{
 					Exchange:    "htx",
 					Symbol:      strings.ToUpper(res.Symbol),
 					OrderId:     res.OrderIdStr,
 					OrderType:   fmt.Sprintf("%s-%s", res.Direction, res.Offset),
-					OrderVolume: int64(voluem),
-					TradeVolume: int64(trade_volume),
+					OrderVolume: voluem * size,
+					TradeVolume: trade_volume * size,
 					TradePrice:  tradeAvgPrice,
 					TradeValue:  tradeTurnover,
 					Status:      2,

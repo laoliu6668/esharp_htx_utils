@@ -13,6 +13,7 @@ import (
 	"github.com/laoliu6668/esharp_htx_utils/util/websocketclient"
 )
 
+// reciveHandle:并发 logHandle:并发 errHandle:并发
 func SubSwapTicker(symbols []string, reciveHandle func(Ticker), logHandle func(string), errHandle func(error)) {
 	gateway := "wss://api.hbdm.com/linear-swap-ws"
 	proxyUrl := ""
@@ -86,7 +87,7 @@ func SubSwapTicker(symbols []string, reciveHandle func(Ticker), logHandle func(s
 				sellSize = res.Tick.Ask[1]
 			}
 
-			reciveHandle(Ticker{
+			go reciveHandle(Ticker{
 				Exchange: htx.ExchangeName,
 				Symbol:   res.Ch,
 				Buy:      Values{Price: buyPrice, Size: buySize},

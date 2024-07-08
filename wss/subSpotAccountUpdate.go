@@ -11,6 +11,7 @@ import (
 )
 
 // 订阅现货账户变化
+// reciveHandle:并发 logHandle:并发 errHandle:并发
 func SubSpotAccountUpdate(reciveHandle func(ReciveBalanceMsg), logHandle func(string), errHandle func(error)) {
 
 	gateway := "api.huobi.pro"

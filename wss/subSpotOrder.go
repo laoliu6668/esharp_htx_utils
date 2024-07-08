@@ -12,6 +12,7 @@ import (
 
 // 订阅订单更新
 // ttps://www.htx.com/zh-cn/opend/newApiPages/?id=7ec49f15-7773-11ed-9966-0242ac110003
+// reciveHandle:并发 logHandle:并发 errHandle:并发
 func SubSpotOrder(reciveHandle func(ReciveSpotOrderMsg), logHandle func(string), errHandle func(error)) {
 
 	title := "SubSpotOrder"
