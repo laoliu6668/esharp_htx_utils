@@ -11,7 +11,7 @@ import (
 )
 
 // 订阅订单更新
-// ttps://www.htx.com/zh-cn/opend/newApiPages/?id=7ec49f15-7773-11ed-9966-0242ac110003
+// https://www.htx.com/zh-cn/opend/newApiPages/?id=7ec49f15-7773-11ed-9966-0242ac110003
 // reciveHandle:并发 logHandle:并发 errHandle:并发
 func SubSpotOrder(reciveHandle func(ReciveSpotOrderMsg), logHandle func(string), errHandle func(error)) {
 
@@ -87,17 +87,18 @@ func SubSpotOrder(reciveHandle func(ReciveSpotOrderMsg), logHandle func(string),
 		} else if msg.Action == "push" && strings.Contains(msg.Ch, "orders#*") {
 			// fmt.Printf("message: %v\n", message)
 			type Data struct {
-				Symbol      string      `json:"symbol"`
-				OrderStatus string      `json:"orderStatus"`
-				OrderId     int         `json:"orderId"`
-				Type        string      `json:"type"`
-				TradeVolume json.Number `json:"tradeVolume"`
-				TradePrice  json.Number `json:"tradePrice"`
-				OrderSize   json.Number `json:"orderSize"`
-				OrderValue  json.Number `json:"orderValue"`
-				ExecAmt     json.Number `json:"execAmt"`
-				OrderSource string      `json:"orderSource"`
-				TradeTime   int64       `json:"tradeTime"`
+				Symbol          string      `json:"symbol"`
+				OrderStatus     string      `json:"orderStatus"`
+				OrderId         int         `json:"orderId"`
+				Type            string      `json:"type"`
+				TradeVolume     json.Number `json:"tradeVolume"`
+				TradePrice      json.Number `json:"tradePrice"`
+				OrderSize       json.Number `json:"orderSize"`
+				OrderValue      json.Number `json:"orderValue"`
+				ExecAmt         json.Number `json:"execAmt"`
+				OrderSource     string      `json:"orderSource"`
+				TradeTime       int64       `json:"tradeTime"`
+				OrderCreateTime int64       `json:"orderCreateTime"`
 				// SeqNum      int64       `json:"seqNum"`
 			}
 			type TickerRes struct {
@@ -138,6 +139,7 @@ func SubSpotOrder(reciveHandle func(ReciveSpotOrderMsg), logHandle func(string),
 						TradeVolume: tradeValue / tradePrice,
 						Status:      2,
 						FilledAt:    res.Data.TradeTime,
+						CreateAt:    res.Data.OrderCreateTime,
 					}
 					go reciveHandle(msg)
 				}

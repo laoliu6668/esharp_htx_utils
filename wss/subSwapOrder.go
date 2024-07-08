@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"time"
 
 	htx "github.com/laoliu6668/esharp_htx_utils"
 	"github.com/laoliu6668/esharp_htx_utils/util"
@@ -135,7 +136,8 @@ func SubSwapOrder(reciveHandle func(ReciveSwapOrderMsg), logHandle func(string),
 					TradePrice:  tradeAvgPrice,
 					TradeValue:  tradeTurnover,
 					Status:      2,
-					FilledAt:    res.CreatedAt,
+					CreateAt:    res.CreatedAt,
+					FilledAt:    time.Now().UnixMilli(),
 				}
 				go reciveHandle(ret)
 			}
