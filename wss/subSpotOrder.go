@@ -14,8 +14,6 @@ import (
 // https://www.htx.com/zh-cn/opend/newApiPages/?id=7ec49f15-7773-11ed-9966-0242ac110003
 // reciveHandle:并发 logHandle:并发 errHandle:并发
 func SubSpotOrder(reciveHandle func(ReciveSpotOrderMsg), logHandle func(string), errHandle func(error)) {
-
-	title := "SubSpotOrder"
 	gateway := "api.huobi.pro"
 	path := "/ws/v2"
 
@@ -34,7 +32,6 @@ func SubSpotOrder(reciveHandle func(ReciveSpotOrderMsg), logHandle func(string),
 		go errHandle(err)
 	})
 	ws.OnConnected(func() {
-		go logHandle(fmt.Sprintf("## connected %v", title))
 		// 发送鉴权消息
 		mp := map[string]any{
 			"accessKey":        htx.ApiConfig.AccessKey,
@@ -42,7 +39,6 @@ func SubSpotOrder(reciveHandle func(ReciveSpotOrderMsg), logHandle func(string),
 			"signatureMethod":  "HmacSHA256",
 			"signatureVersion": "2.1",
 		}
-
 		mp["signature"] = htx.Signature("get", gateway, path, mp, htx.ApiConfig.SecretKey)
 		mp["authType"] = "api"
 		authMap := map[string]any{
@@ -52,9 +48,7 @@ func SubSpotOrder(reciveHandle func(ReciveSpotOrderMsg), logHandle func(string),
 		}
 		authBuf, _ := json.Marshal(authMap)
 		ws.SendTextMessage(string(authBuf))
-
-		go logHandle(fmt.Sprintf("## %v send auth", title))
-		go logHandle(fmt.Sprintf("## auth %s", authBuf))
+		go logHandle(fmt.Sprintf("auth %s", authBuf))
 
 	})
 
@@ -188,7 +182,7 @@ func SubSpotOrder(reciveHandle func(ReciveSpotOrderMsg), logHandle func(string),
 				ws.SendTextMessage(string(bf))
 			}
 		} else if msg.Action == "sub" {
-			go logHandle(fmt.Sprintf("## %v sub success", title))
+			// go logHandle(fmt.Sprintf("## %v sub success", title))
 			// if msg.Code != 200 {
 			// }
 		} else {

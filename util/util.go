@@ -207,11 +207,11 @@ func ParseFloat(s any, emptyDefault float64) float64 {
 }
 
 func ParseInt(s any, emptyDefault int64) int64 {
-	f, err := strconv.ParseInt(fmt.Sprintf("%v", s), 10, 64)
+	f, err := strconv.ParseFloat(fmt.Sprintf("%v", s), 64)
 	if err != nil {
 		return emptyDefault
 	}
-	return f
+	return int64(f)
 }
 
 func SubSlice(s []any, start, end int) []any {

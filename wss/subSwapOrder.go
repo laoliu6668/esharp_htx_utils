@@ -12,6 +12,7 @@ import (
 	htx "github.com/laoliu6668/esharp_htx_utils"
 	"github.com/laoliu6668/esharp_htx_utils/util"
 	"github.com/laoliu6668/esharp_htx_utils/util/websocketclient"
+	"github.com/shopspring/decimal"
 )
 
 // 【逐仓】订阅订单成交数据（sub）
@@ -95,18 +96,18 @@ func SubSwapOrder(reciveHandle func(ReciveSwapOrderMsg), logHandle func(string),
 			}
 		} else if msg.Op == "notify" {
 			type TickerRes struct {
-				Status         int64       `json:"status"`
-				OrderPriceType string      `json:"order_price_type"`
-				Symbol         string      `json:"symbol"`
-				OrderIdStr     string      `json:"order_id_str"`
-				Direction      string      `json:"direction"`
-				OrderSource    string      `json:"order_source"`
-				Offset         string      `json:"offset"`
-				Volume         json.Number `json:"volume"`
-				TradeVolume    json.Number `json:"trade_volume"`
-				TradeAvgPrice  json.Number `json:"trade_avg_price"`
-				TradeTurnover  json.Number `json:"trade_turnover"`
-				CreatedAt      int64       `json:"created_at"`
+				Status         int64  `json:"status"`
+				OrderPriceType string `json:"order_price_type"`
+				Symbol         string `json:"symbol"`
+				OrderIdStr     string `json:"order_id_str"`
+				Direction      string `json:"direction"`
+				OrderSource    string `json:"order_source"`
+				Offset         string `json:"offset"`
+				Volume         string `json:"volume"`
+				TradeVolume    string `json:"trade_volume"`
+				TradeAvgPrice  string `json:"trade_avg_price"`
+				TradeTurnover  string `json:"trade_turnover"`
+				CreatedAt      int64  `json:"created_at"`
 			}
 			res := TickerRes{}
 			err := json.Unmarshal(buff, &res)
@@ -119,22 +120,25 @@ func SubSwapOrder(reciveHandle func(ReciveSwapOrderMsg), logHandle func(string),
 			}
 			// if res.OrderPriceType == "optimal_20" && res.Status == 6 {
 			if res.Status == 6 {
-				voluem, _ := res.Volume.Float64()
-				trade_volume, _ := res.TradeVolume.Float64()
-				tradeAvgPrice, _ := res.TradeAvgPrice.Float64()
-				tradeTurnover, _ := res.TradeTurnover.Float64()
-
-				// 面值
-				size := tradeTurnover / tradeAvgPrice / trade_volume
+				volume, _ := decimal.NewFromString(res.Volume)               // 下单张数d
+				trade_volume, _ := decimal.NewFromString(res.TradeVolume)    // 成交张数d
+				tradeAvgPrice, _ := decimal.NewFromString(res.TradeAvgPrice) // 成交均价d
+				tradeTurnover, _ := decimal.NewFromString(res.TradeTurnover) // 成交额d
+				size := tradeTurnover.Div(tradeAvgPrice).Div(trade_volume)   // 面值d
+				orderVolume, _ := volume.Mul(size).Float64()                 // 下单数量
+				tradeVolume, _ := trade_volume.Mul(size).Float64()           // 成交数量
+				tradePrice, _ := tradeAvgPrice.Float64()                     // 成交价格
+				tradeValuie, _ := tradeTurnover.Float64()                    // 成交额
+				// 面值    3105/3105/ 0.01
 				ret := ReciveSwapOrderMsg{
 					Exchange:    "htx",
 					Symbol:      strings.ToUpper(res.Symbol),
 					OrderId:     res.OrderIdStr,
 					OrderType:   fmt.Sprintf("%s-%s", res.Direction, res.Offset),
-					OrderVolume: voluem * size,
-					TradeVolume: trade_volume * size,
-					TradePrice:  tradeAvgPrice,
-					TradeValue:  tradeTurnover,
+					OrderVolume: orderVolume,
+					TradeVolume: tradeVolume,
+					TradePrice:  tradePrice,
+					TradeValue:  tradeValuie,
 					Status:      2,
 					CreateAt:    res.CreatedAt,
 					FilledAt:    time.Now().UnixMilli(),

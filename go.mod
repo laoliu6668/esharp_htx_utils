@@ -8,4 +8,7 @@ require (
 	github.com/jpillora/backoff v1.0.0
 )
 
-require golang.org/x/net v0.26.0 // indirect
+require (
+	github.com/shopspring/decimal v1.4.0 // indirect
+	golang.org/x/net v0.26.0 // indirect
+)
