@@ -29,7 +29,7 @@ func (c *ApiConfigModel) Request(method, gateway, path string, data map[string]a
 
 	// 创建http client
 	client := &http.Client{
-		Timeout: time.Second * 10,
+		Timeout: time.Second * 3,
 	}
 	if UseProxy {
 		uri, _ := url.Parse(fmt.Sprintf("http://%s", ProxyUrl))
