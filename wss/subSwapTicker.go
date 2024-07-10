@@ -28,7 +28,7 @@ func SubSwapTicker(symbols []string, reciveHandle func(Ticker), logHandle func(s
 		go errHandle(fmt.Errorf("disconnected: %v", err))
 	})
 	ws.OnConnected(func() {
-		go logHandle("## connected SubSwapTicker")
+		// go logHandle("## connected SubSwapTicker")
 		for _, symbol := range symbols {
 			ws.SendTextMessage(fmt.Sprintf(`{"sub": "market.%s-USDT.bbo", "id": "id%v"}`, strings.ToUpper(symbol), time.Now().Unix()))
 		}
@@ -95,7 +95,7 @@ func SubSwapTicker(symbols []string, reciveHandle func(Ticker), logHandle func(s
 				UpdateAt: htx.GetTimeFloat(),
 			})
 		} else if _, ok := mp["subbed"]; ok {
-			go logHandle(fmt.Sprintf("subbed: %v", string(buff)))
+			// go logHandle(fmt.Sprintf("subbed: %v", string(buff)))
 		} else {
 			go logHandle(fmt.Sprintf("unknown message: %v", string(buff)))
 		}

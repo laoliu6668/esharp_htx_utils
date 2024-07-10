@@ -33,7 +33,7 @@ func SubSpotTicker(symbols []string, reciveHandle func(ReciveData), logHandle fu
 		go errHandle(fmt.Errorf("OnSentError: %v", err))
 	})
 	ws.OnConnected(func() {
-		go logHandle("## connected SubSpotTicker")
+		// go logHandle("## connected SubSpotTicker")
 		for _, symbol := range symbols {
 			ws.SendTextMessage(fmt.Sprintf(`{"sub": "market.%susdt.bbo", "id": "id%v"}`, strings.ToLower(symbol), time.Now().Unix()))
 		}
