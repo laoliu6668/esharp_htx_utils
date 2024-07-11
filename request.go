@@ -17,11 +17,11 @@ import (
 )
 
 func (c *ApiConfigModel) Get(gateway, path string, data map[string]any) (body []byte, resp *http.Response, err error) {
-	return c.Request("GET", gateway, path, data, 5)
+	return c.Request("GET", gateway, path, data, time.Second*5)
 }
 
 func (c *ApiConfigModel) Post(gateway, path string, data map[string]any) (body []byte, resp *http.Response, err error) {
-	return c.Request("POST", gateway, path, data, 3)
+	return c.Request("POST", gateway, path, data, time.Second*3)
 }
 
 func (c *ApiConfigModel) GetTimeout(gateway, path string, data map[string]any, timeout time.Duration) (body []byte, resp *http.Response, err error) {
