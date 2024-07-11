@@ -17,19 +17,29 @@ import (
 )
 
 func (c *ApiConfigModel) Get(gateway, path string, data map[string]any) (body []byte, resp *http.Response, err error) {
-	return c.Request("GET", gateway, path, data)
+	return c.Request("GET", gateway, path, data, 5)
 }
 
 func (c *ApiConfigModel) Post(gateway, path string, data map[string]any) (body []byte, resp *http.Response, err error) {
-	return c.Request("POST", gateway, path, data)
+	return c.Request("POST", gateway, path, data, 3)
+}
+
+func (c *ApiConfigModel) GetTimeout(gateway, path string, data map[string]any, timeout time.Duration) (body []byte, resp *http.Response, err error) {
+	return c.Request("GET", gateway, path, data, timeout)
+}
+func (c *ApiConfigModel) PostTimeout(gateway, path string, data map[string]any, timeout time.Duration) (body []byte, resp *http.Response, err error) {
+	return c.Request("POST", gateway, path, data, timeout)
 }
 
 // 获取TRONSCAN API数据
-func (c *ApiConfigModel) Request(method, gateway, path string, data map[string]any) (body []byte, resp *http.Response, err error) {
+func (c *ApiConfigModel) Request(method, gateway, path string, data map[string]any, timeout time.Duration) (body []byte, resp *http.Response, err error) {
 
+	if timeout == 0 {
+		timeout = time.Second * 5
+	}
 	// 创建http client
 	client := &http.Client{
-		Timeout: time.Second * 3,
+		Timeout: timeout,
 	}
 	if UseProxy {
 		uri, _ := url.Parse(fmt.Sprintf("http://%s", ProxyUrl))

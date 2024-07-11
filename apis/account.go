@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	htx "github.com/laoliu6668/esharp_htx_utils"
+	"github.com/laoliu6668/esharp_htx_utils/util"
 )
 
 const gateway_huobiPro = "api.huobi.pro"
@@ -191,4 +193,47 @@ func SwapToMarginTransfer(amount float64, symb string) (no int, err error) {
 		return 0, fmt.Errorf("%s false:%v", symbol, res.Message)
 	}
 	return res.Data, nil
+}
+
+type AccountTotal struct {
+	AccountBalanceUsdt string `json:"accountBalanceUsdt"`
+}
+type TotalData struct {
+	ProfitAccountBalanceList []AccountTotal `json:"profitAccountBalanceList"`
+}
+type ApiResponseAccountTotal struct {
+	Data    TotalData `json:"data"`
+	Success bool      `json:"success"`
+	Code    int       `json:"code"`
+}
+
+// ## 获取账户总资产估值
+// https://www.htx.com/zh-cn/opend/newApiPages/?id=7ec46584-7773-11ed-9966-0242ac110003
+func GetAccountTotalValue() (balance float64, err error) {
+	const symbol = "HTX GetAccountTotalValue"
+	body, _, err := htx.ApiConfig.GetTimeout(gateway_huobiPro, "/v2/account/valuation", map[string]any{
+		// "valuationCurrency": "BTC",
+	}, time.Second*10)
+	if err != nil {
+		err = fmt.Errorf("%s err: %v", symbol, err)
+		return
+	}
+
+	res := ApiResponseAccountTotal{}
+	err = json.Unmarshal(body, &res)
+	if err != nil {
+		err = fmt.Errorf("%s jsonDecodeErr: %v", symbol, err)
+		fmt.Println(err)
+		return
+	}
+	if !res.Success {
+		err = fmt.Errorf("%s false:%v", symbol, res.Code)
+		return
+	}
+	total := 0.0
+	for _, v := range res.Data.ProfitAccountBalanceList {
+		total += util.ParseFloat(v.AccountBalanceUsdt, 0)
+	}
+
+	return total, nil
 }

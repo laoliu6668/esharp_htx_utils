@@ -41,3 +41,12 @@ func Test_SwapToSpotTransfer(t *testing.T) {
 	}
 	t.Logf("data: %v", data)
 }
+
+func Test_GetAccountTotalValue(t *testing.T) {
+	data, err := htx.GetAccountTotalValue()
+	if err != nil {
+		t.Errorf("Error: %v", err)
+		return
+	}
+	t.Logf("data: %v", data)
+}

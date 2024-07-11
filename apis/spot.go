@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	htx "github.com/laoliu6668/esharp_htx_utils"
 )
@@ -159,12 +160,12 @@ type ApiResponseV1String struct {
 func SpotBuyMarket(symb string, amount float64) (data string, err error) {
 	// 市价买入
 	const symbol = "HTX SpotBuyMarket"
-	body, _, err1 := htx.ApiConfig.Post(gateway_huobiPro, "/v1/order/orders/place", map[string]any{
+	body, _, err1 := htx.ApiConfig.PostTimeout(gateway_huobiPro, "/v1/order/orders/place", map[string]any{
 		"account-id": htx.ApiConfig.AccountId,
 		"symbol":     fmt.Sprintf("%susdt", strings.ToLower(symb)),
 		"type":       "buy-market",
 		"amount":     amount,
-	})
+	}, time.Second)
 	if err1 != nil {
 		err = fmt.Errorf("%s err: %v", symbol, err1)
 		return
@@ -188,12 +189,12 @@ func SpotBuyMarket(symb string, amount float64) (data string, err error) {
 func SpotSellMarket(symb string, volume float64) (data string, err error) {
 	// 市价卖出
 	const symbol = "HTX SpotSellMarket"
-	body, _, err1 := htx.ApiConfig.Post(gateway_huobiPro, "/v1/order/orders/place", map[string]any{
+	body, _, err1 := htx.ApiConfig.PostTimeout(gateway_huobiPro, "/v1/order/orders/place", map[string]any{
 		"account-id": htx.ApiConfig.AccountId,
 		"symbol":     fmt.Sprintf("%susdt", strings.ToLower(symb)),
 		"type":       "sell-market",
 		"amount":     volume,
-	})
+	}, time.Second)
 	if err1 != nil {
 		err = fmt.Errorf("%s err: %v", symbol, err1)
 		return
