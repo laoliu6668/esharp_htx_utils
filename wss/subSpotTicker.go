@@ -15,7 +15,7 @@ import (
 )
 
 // reciveHandle:并发 logHandle:并发 errHandle:并发
-func SubSpotTicker(symbols []string, reciveHandle func(ReciveData), logHandle func(string), errHandle func(error)) {
+func SubSpotTicker(symbols []string, reciveHandle func(Ticker), logHandle func(string), errHandle func(error)) {
 	gateway := "wss://api.huobi.pro/wss"
 	proxyUrl := ""
 	if htx.UseProxy {
@@ -87,17 +87,12 @@ func SubSpotTicker(symbols []string, reciveHandle func(ReciveData), logHandle fu
 				res.Ch = strings.Replace(strings.ToUpper(symbolArr[1]), "USDT", "", 1)
 			}
 			// gzip
-			ticker := Ticker{
+			go reciveHandle(Ticker{
 				Exchange: htx.ExchangeName,
 				Symbol:   res.Ch,
 				Buy:      Values{Price: res.Tick.Bid, Size: res.Tick.BidSize},
 				Sell:     Values{Price: res.Tick.Ask, Size: res.Tick.AskSize},
 				UpdateAt: htx.GetTimeFloat(),
-			}
-			go reciveHandle(ReciveData{
-				Exchange: htx.ExchangeName,
-				Symbol:   res.Ch,
-				Ticker:   ticker,
 			})
 		} else if _, ok := mp["subbed"]; ok {
 			// go logHandle(fmt.Sprintf("subbed: %v", string(buff)))
