@@ -92,7 +92,17 @@ func SubSpotTradeDetail(symbols []string, reciveHandle func(TradeDetail), logHan
 				go reciveHandle(res.Tick.Data[0])
 			}
 		} else if _, ok := mp["subbed"]; ok {
-			go logHandle(fmt.Sprintf("subbed: %v", string(buff)))
+			type TickerRes struct {
+				Ch string `json:"ch"`
+				Ts int64  `json:"ts"`
+			}
+			res := TickerRes{}
+			json.Unmarshal(buff, &res)
+			symbolArr := strings.Split(res.Ch, ".")
+			if len(symbolArr) > 1 {
+				res.Ch = strings.Replace(strings.ToUpper(symbolArr[1]), "USDT", "", 1)
+			}
+			go logHandle(fmt.Sprintf("subbed: %s", res.Ch))
 		} else {
 			go logHandle(fmt.Sprintf("unknown message: %v", string(buff)))
 		}
