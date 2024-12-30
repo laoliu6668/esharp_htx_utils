@@ -15,6 +15,7 @@ import (
 )
 
 type TradeDetail struct {
+	Coin      string  `json:"coin"`
 	Amount    float64 `json:"amount"`
 	Price     float64 `json:"price"`
 	Direction string  `json:"direction"`
@@ -87,6 +88,7 @@ func SubSpotTradeDetail(symbols []string, reciveHandle func(TradeDetail), logHan
 			}
 			// gzip
 			if len(res.Tick.Data) > 0 {
+				res.Tick.Data[0].Coin = res.Ch
 				go reciveHandle(res.Tick.Data[0])
 			}
 		} else if _, ok := mp["subbed"]; ok {
