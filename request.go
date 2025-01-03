@@ -71,7 +71,9 @@ func (c *ApiConfigModel) Request(method, gateway, path string, data map[string]a
 	}
 
 	// 签名
-	queryMap["Signature"] = Signature(method, gateway, path, queryMap, c.SecretKey)
+	if c.SecretKey != "" {
+		queryMap["Signature"] = Signature(method, gateway, path, queryMap, c.SecretKey)
+	}
 	// 构造query
 	url := GetQueryUrl("https://", gateway, path, queryMap)
 
