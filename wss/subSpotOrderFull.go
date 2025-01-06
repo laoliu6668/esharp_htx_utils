@@ -78,7 +78,9 @@ func SubSpotOrderFull(reciveHandle func(map[string]any, []byte), logHandle func(
 			// 收到ping 回复pong
 			ws.SendTextMessage(pong)
 		} else if msg.Action == "push" && strings.Contains(msg.Ch, "orders#*") {
-			go reciveHandle(msg.Data, []byte(message))
+			// 订单推送
+			buf, _ := json.Marshal(msg.Data)
+			go reciveHandle(msg.Data, buf)
 		} else if msg.Action == "req" {
 			if msg.Ch == "auth" && msg.Code == 200 {
 				// 订阅账户信息
