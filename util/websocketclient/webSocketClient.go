@@ -98,7 +98,7 @@ func New(wssUrl, proxyUrl string) *Wsc {
 	wsc := &Wsc{
 		Config: &Config{
 			WriteWait:         10 * time.Second,
-			MaxMessageSize:    10240,
+			MaxMessageSize:    1024 * 100,
 			MinRecTime:        2 * time.Second,
 			MaxRecTime:        60 * time.Second,
 			RecFactor:         1.5,
@@ -240,6 +240,11 @@ func (wsc *Wsc) Connect() {
 			for {
 				messageType, message, err := wsc.WebSocket.Conn.ReadMessage()
 				if err != nil {
+					// 超过最大读取限制，忽略
+					if err == websocket.ErrReadLimit {
+						fmt.Printf("err: %v\n", err)
+						continue
+					}
 					// 异常断线重连
 					if wsc.onDisconnected != nil {
 						wsc.onDisconnected(err)
