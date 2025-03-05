@@ -240,11 +240,11 @@ func (wsc *Wsc) Connect() {
 			for {
 				messageType, message, err := wsc.WebSocket.Conn.ReadMessage()
 				if err != nil {
-					// 超过最大读取限制，忽略
-					if err == websocket.ErrReadLimit {
-						fmt.Printf("err: %v\n", err)
-						continue
-					}
+					// 超过最大读取限制，异常忽略未实现
+					// if err == websocket.ErrReadLimit {
+					// 	fmt.Printf("err: %v\n", err)
+					// 	continue
+					// }
 					// 异常断线重连
 					if wsc.onDisconnected != nil {
 						wsc.onDisconnected(err)
