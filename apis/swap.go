@@ -365,12 +365,13 @@ func SwapBuyClose(symb string, volume int) (orderId string, err error) {
 	// 买入平空
 	const symbol = "HTX SwapBuyClose"
 	body, _, err := htx.ApiConfig.PostTimeout(gateway_hbdm, "/linear-swap-api/v1/swap_order", map[string]any{
-		"contract_code":    fmt.Sprintf("%s-USDT", strings.ToUpper(symb)),
-		"volume":           volume,
-		"direction":        "buy",
-		"offset":           "close",
-		"lever_rate":       2,
-		"order_price_type": "optimal_20",
+		"contract_code": fmt.Sprintf("%s-USDT", strings.ToUpper(symb)),
+		"volume":        volume,
+		"direction":     "buy",
+		"offset":        "close",
+		"lever_rate":    2,
+		// "order_price_type": "optimal_20",
+		"order_price_type": "market",
 	}, time.Second)
 	if err != nil {
 		err = fmt.Errorf("%s err: %v", symbol, err)
@@ -403,7 +404,7 @@ func SwapSellOpen(symb string, volume int) (orderId string, err error) {
 		"direction":        "sell",
 		"offset":           "open",
 		"lever_rate":       2,
-		"order_price_type": "optimal_20",
+		"order_price_type": "market",
 	}, time.Second)
 	if err1 != nil {
 		err = fmt.Errorf("%s err: %v", symbol, err1)
@@ -434,7 +435,7 @@ func SwapBuyOpen(symb string, volume int) (data string, err error) {
 		"direction":        "buy",
 		"offset":           "open",
 		"lever_rate":       2,
-		"order_price_type": "optimal_20",
+		"order_price_type": "market",
 	}, time.Second)
 	if err1 != nil {
 		err = fmt.Errorf("%s err: %v", symbol, err1)
@@ -465,7 +466,7 @@ func SwapSellClose(symb string, volume int) (data string, err error) {
 		"direction":        "sell",
 		"offset":           "close",
 		"lever_rate":       2,
-		"order_price_type": "optimal_20",
+		"order_price_type": "market",
 	}, time.Second)
 	if err1 != nil {
 		err = fmt.Errorf("%s err: %v", symbol, err1)
