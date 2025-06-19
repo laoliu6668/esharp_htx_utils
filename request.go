@@ -49,28 +49,31 @@ func (c *ApiConfigModel) Request(method, gateway, path string, data map[string]a
 	}
 	// 声明 querypMap
 	queryMap := map[string]any{
-		"AccessKeyId":      c.AccessKey,
 		"Timestamp":        UTCTimeNow(),
 		"SignatureMethod":  "HmacSHA256",
 		"SignatureVersion": "2",
 	}
 	// 声明 body
 	var reqBody io.Reader
-	if method == "POST" {
+	switch method {
+	case "POST":
 		// 添加body
 		buf, _ := json.Marshal(data)
 		reqBody = strings.NewReader(string(buf))
-	} else if method == "GET" {
+	case "GET":
 		// 融合query 参数
 		for k, v := range data {
 			queryMap[k] = v
 		}
-	} else {
+	default:
 		err = errors.New("不支持的http方法")
 		return
 	}
 
 	// 签名
+	if c.AccessKey != "" {
+		queryMap["AccessKeyId"] = c.AccessKey
+	}
 	if c.SecretKey != "" {
 		queryMap["Signature"] = Signature(method, gateway, path, queryMap, c.SecretKey)
 	}
