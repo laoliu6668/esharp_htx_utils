@@ -103,7 +103,7 @@ func Test_GetSwapAccountBalance(t *testing.T) {
 }
 func Test_SwapSellOpen(t *testing.T) {
 	// 卖出开空
-	data, err := htx.SwapSellOpen("DOGE", 1, 2)
+	data, err := htx.SwapSellOpen("TRX", 2, 3)
 	if err != nil {
 		t.Errorf("Error:1%v", err)
 		return
@@ -113,7 +113,7 @@ func Test_SwapSellOpen(t *testing.T) {
 
 func Test_SwapBuyClose(t *testing.T) {
 	// 买入平空
-	data, err := htx.SwapBuyClose("DOGE", 1, 2)
+	data, err := htx.SwapBuyClose("TRX", 3, 2)
 	if err != nil {
 		t.Errorf("Error1: %v", err)
 		return
