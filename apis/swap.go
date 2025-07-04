@@ -358,7 +358,7 @@ func GetSwapAccountBalance() (balance float64, err error) {
 
 // 买入平空
 func SwapBuyClose(symb string, volume int, lever_rate int) (orderId string, err error) {
-	return SwapOrder(symb, volume, "sell", "open", lever_rate, "market")
+	return SwapOrder(symb, volume, "sell", "close", lever_rate, "market")
 }
 
 // 卖出开空
