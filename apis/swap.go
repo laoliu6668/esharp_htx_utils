@@ -356,29 +356,45 @@ func GetSwapAccountBalance() (balance float64, err error) {
 	return util.ParseFloat(res.Data[0].Balance, 0), nil
 }
 
+// 买入平空
+func SwapBuyClose(symb string, volume int, lever_rate int) (orderId string, err error) {
+	return SwapOrder(symb, volume, "sell", "open", lever_rate, "market")
+}
+
+// 卖出开空
+func SwapSellOpen(symb string, volume int, lever_rate int) (orderId string, err error) {
+	return SwapOrder(symb, volume, "sell", "open", lever_rate, "market")
+}
+
+// 买入开多
+func SwapBuyOpen(symb string, volume int, lever_rate int) (data string, err error) {
+	return SwapOrder(symb, volume, "buy", "open", lever_rate, "market")
+}
+
+// 卖出平多
+func SwapSellClose(symb string, volume int, lever_rate int) (data string, err error) {
+	return SwapOrder(symb, volume, "sell", "close", lever_rate, "market")
+}
+
 // ### 期货下单
 // doc: https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb77019-77b5-11ed-9966-0242ac110003
-
-// 空模型
 // volume 张数
-func SwapBuyClose(symb string, volume int) (orderId string, err error) {
+func SwapOrder(symb string, volume int, direction string, offset string, lever_rate int, order_price_type string) (orderId string, err error) {
 	// 买入平空
-	const symbol = "HTX SwapBuyClose"
+	var symbol = fmt.Sprintf("HTX Swap%s%s", direction, offset)
 	body, _, err := htx.ApiConfig.PostTimeout(gateway_hbdm, "/linear-swap-api/v1/swap_order", map[string]any{
-		"contract_code": fmt.Sprintf("%s-USDT", strings.ToUpper(symb)),
-		"volume":        volume,
-		"direction":     "buy",
-		"offset":        "close",
-		"lever_rate":    2,
-		// "order_price_type": "optimal_20",
-		"order_price_type": "market",
+		"contract_code":    fmt.Sprintf("%s-USDT", strings.ToUpper(symb)),
+		"volume":           volume,
+		"direction":        direction,
+		"offset":           offset,
+		"lever_rate":       lever_rate,
+		"order_price_type": order_price_type,
 	}, time.Second)
 	if err != nil {
 		err = fmt.Errorf("%s err: %v", symbol, err)
 		fmt.Println(err)
 		return
 	}
-	// fmt.Printf("string(body): %v\n", string(body))
 	res := ApiResponseSwapData{}
 	err = json.Unmarshal(body, &res)
 	if err != nil {
@@ -392,98 +408,4 @@ func SwapBuyClose(symb string, volume int) (orderId string, err error) {
 	}
 
 	return fmt.Sprintf("%v", res.Data["order_id_str"]), nil
-}
-
-// volume 张数
-func SwapSellOpen(symb string, volume int) (orderId string, err error) {
-	// 卖出开空
-	const symbol = "HTX SwapSellOpen"
-	body, _, err1 := htx.ApiConfig.PostTimeout(gateway_hbdm, "/linear-swap-api/v1/swap_order", map[string]any{
-		"contract_code":    fmt.Sprintf("%s-USDT", strings.ToUpper(symb)),
-		"volume":           volume,
-		"direction":        "sell",
-		"offset":           "open",
-		"lever_rate":       2,
-		"order_price_type": "market",
-	}, time.Second)
-	if err1 != nil {
-		err = fmt.Errorf("%s err: %v", symbol, err1)
-		return
-	}
-	res := ApiResponseSwapData{}
-	err = json.Unmarshal(body, &res)
-	if err != nil {
-		err = fmt.Errorf("%s jsonDecodeErr: %v", symbol, err)
-		fmt.Println(err)
-		return
-	}
-	if !res.Success() {
-		err = fmt.Errorf("%s false:%v", symbol, res.Message)
-		return
-	}
-
-	return fmt.Sprintf("%v", res.Data["order_id_str"]), nil
-}
-
-// volume 张数
-func SwapBuyOpen(symb string, volume int) (data string, err error) {
-	// 买入开多
-	const symbol = "HTX SwapSellOpen"
-	body, _, err1 := htx.ApiConfig.PostTimeout(gateway_hbdm, "/linear-swap-api/v1/swap_order", map[string]any{
-		"contract_code":    fmt.Sprintf("%s-USDT", strings.ToUpper(symb)),
-		"volume":           volume,
-		"direction":        "buy",
-		"offset":           "open",
-		"lever_rate":       2,
-		"order_price_type": "market",
-	}, time.Second)
-	if err1 != nil {
-		err = fmt.Errorf("%s err: %v", symbol, err1)
-		return
-	}
-	res := ApiResponseSwapData{}
-	err = json.Unmarshal(body, &res)
-	if err != nil {
-		err = fmt.Errorf("%s jsonDecodeErr: %v", symbol, err)
-		fmt.Println(err)
-		return
-	}
-	if !res.Success() {
-		err = fmt.Errorf("%s false:%v", symbol, res.Message)
-		return
-	}
-
-	return fmt.Sprintf("%v", res.Data["order_id_str"]), nil
-}
-
-// volume 张数
-func SwapSellClose(symb string, volume int) (data string, err error) {
-	// 卖出平多
-	const symbol = "HTX SwapSellOpen"
-	body, _, err1 := htx.ApiConfig.PostTimeout(gateway_hbdm, "/linear-swap-api/v1/swap_order", map[string]any{
-		"contract_code":    fmt.Sprintf("%s-USDT", strings.ToUpper(symb)),
-		"volume":           volume,
-		"direction":        "sell",
-		"offset":           "close",
-		"lever_rate":       2,
-		"order_price_type": "market",
-	}, time.Second)
-	if err1 != nil {
-		err = fmt.Errorf("%s err: %v", symbol, err1)
-		return
-	}
-	res := ApiResponseSwapData{}
-	err = json.Unmarshal(body, &res)
-	if err != nil {
-		err = fmt.Errorf("%s jsonDecodeErr: %v", symbol, err)
-		fmt.Println(err)
-		return
-	}
-	if !res.Success() {
-		err = fmt.Errorf("%s false:%v", symbol, res.Message)
-		return
-	}
-
-	return fmt.Sprintf("%v", res.Data["order_id_str"]), nil
-
 }
