@@ -330,7 +330,7 @@ type ResAccountType struct {
 	} `json:"data"`
 }
 
-// ## 账户类型更改
+// ## 查询账户类型更改
 // https://www.htx.com/zh-cn/opend/newApiPages/?id=10000079-77b7-11ed-9966-0242ac110003
 func GetAccountType() (accountType int, err error) {
 	const symbol = "HTX GetAccountType"
@@ -353,4 +353,32 @@ func GetAccountType() (accountType int, err error) {
 	}
 
 	return res.Data.AccountType, nil
+}
+
+// ## 账户类型更改
+// https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb89359-77b5-11ed-9966-1957dd1a995
+// asset_mode: 0:单币种保证金模式（老）1:联合保证金模式 2:单币种保证金模式(新）
+func SwitchSwapAccountTypeV5(asset_mode int) (err error) {
+	const symbol = "HTX SwitchSwapAccountTypeV5"
+	body, _, err := htx.ApiConfig.PostTimeout(gateway_hbdm, "/v5/account/asset_mode", map[string]any{
+		"asset_mode": asset_mode,
+	}, time.Second*10)
+	if err != nil {
+		err = fmt.Errorf("%s err: %v", symbol, err)
+		return
+	}
+
+	res := htx.ApiResponseHBDMV3{}
+	err = json.Unmarshal(body, &res)
+	if err != nil {
+		err = fmt.Errorf("%s jsonDecodeErr: %v", symbol, err)
+		fmt.Println(err)
+		return
+	}
+	if !res.Success() {
+		err = fmt.Errorf("%s false:%v %s \n resp: %s", symbol, res.Code, res.Message, string(body))
+		return
+	}
+
+	return
 }
