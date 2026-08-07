@@ -60,3 +60,13 @@ type SpotBalanceTicker struct {
 	Trade  json.Number `json:"trade"`
 	Frozen json.Number `json:"frozen"`
 }
+
+type ApiResponseV5 struct {
+	// 定义响应结构体
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}
+
+func (r *ApiResponseV5) Success() bool {
+	return r.Code == 200
+}

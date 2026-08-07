@@ -382,3 +382,43 @@ func SwitchSwapAccountTypeV5(asset_mode int) (err error) {
 
 	return
 }
+
+// ### 发起万向划转
+// doc: https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb89359-77b5-11ed-9966-19e1b02387c
+// assetType[0] = fromAssetType, assetType[1] = toAssetType
+func UniversalTransfer(fromAccountType, toAccountType, currency string, amount float64, assetType ...string) (err error) {
+	const symbol = "HTX UniversalTransfer"
+
+	var fromAssetType, toAssetType string
+	if len(assetType) > 0 {
+		fromAssetType = assetType[0]
+	}
+	if len(assetType) > 1 {
+		toAssetType = assetType[1]
+	}
+	body, _, err := htx.ApiConfig.Post(gateway_huobiPro, "/v5/account/universal_transfer", map[string]any{
+		"from_account_type": fromAccountType,
+		"to_account_type":   toAccountType,
+		"currency":          currency,
+		"amount":            amount,
+		"from_asset_type":   fromAssetType,
+		"to_asset_type":     toAssetType,
+	})
+	if err != nil {
+		err = fmt.Errorf("%s err: %v", symbol, err)
+		fmt.Println(err)
+		return
+	}
+	res := htx.ApiResponseV5{}
+	err = json.Unmarshal(body, &res)
+	if err != nil {
+		err = fmt.Errorf("%s jsonDecodeErr: %v", symbol, err)
+		fmt.Println(err)
+		return
+	}
+	if !res.Success() {
+		err = fmt.Errorf("%s false: %v %s", symbol, res.Message, string(body))
+		return
+	}
+	return
+}
