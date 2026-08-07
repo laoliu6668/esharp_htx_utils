@@ -258,7 +258,7 @@ func SwitchAccountType() (err error) {
 		return
 	}
 	if !res.Success() {
-		err = fmt.Errorf("%s false:%v %s", symbol, res.Code, res.Message)
+		err = fmt.Errorf("%s false:%v %s \n resp: %s", symbol, res.Code, res.Message, string(body))
 		return
 	}
 
