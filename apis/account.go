@@ -242,7 +242,7 @@ func GetAccountTotalValue() (balance float64, err error) {
 // https://www.htx.com/zh-cn/opend/newApiPages/?id=10000081-77b7-11ed-9966-0242ac110003
 func SwitchAccountType() (err error) {
 	const symbol = "HTX SwitchAccountType"
-	body, _, err := htx.ApiConfig.PostTimeout(gateway_huobiPro, "/linear-swap-api/v3/swap_switch_account_type", map[string]any{
+	body, _, err := htx.ApiConfig.PostTimeout(gateway_hbdm, "/linear-swap-api/v3/swap_switch_account_type", map[string]any{
 		"account_type": 1,
 	}, time.Second*10)
 	if err != nil {
@@ -276,7 +276,7 @@ type ResAccountType struct {
 // https://www.htx.com/zh-cn/opend/newApiPages/?id=10000079-77b7-11ed-9966-0242ac110003
 func GetAccountType() (accountType int, err error) {
 	const symbol = "HTX GetAccountType"
-	body, _, err := htx.ApiConfig.GetTimeout(gateway_huobiPro, "/linear-swap-api/v3/swap_unified_account_type", map[string]any{}, time.Second*10)
+	body, _, err := htx.ApiConfig.GetTimeout(gateway_hbdm, "/linear-swap-api/v3/swap_unified_account_type", map[string]any{}, time.Second*10)
 	if err != nil {
 		err = fmt.Errorf("%s err: %v", symbol, err)
 		return
