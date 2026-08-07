@@ -237,3 +237,62 @@ func GetAccountTotalValue() (balance float64, err error) {
 
 	return total, nil
 }
+
+// ## 账户类型更改
+// https://www.htx.com/zh-cn/opend/newApiPages/?id=10000081-77b7-11ed-9966-0242ac110003
+func SwitchAccountType() (err error) {
+	const symbol = "HTX SwitchAccountType"
+	body, _, err := htx.ApiConfig.PostTimeout(gateway_huobiPro, "/linear-swap-api/v3/swap_switch_account_type", map[string]any{
+		"account_type": 1,
+	}, time.Second*10)
+	if err != nil {
+		err = fmt.Errorf("%s err: %v", symbol, err)
+		return
+	}
+
+	res := htx.ApiResponseHBDMV3{}
+	err = json.Unmarshal(body, &res)
+	if err != nil {
+		err = fmt.Errorf("%s jsonDecodeErr: %v", symbol, err)
+		fmt.Println(err)
+		return
+	}
+	if !res.Success() {
+		err = fmt.Errorf("%s false:%v", symbol, res.Code)
+		return
+	}
+
+	return
+}
+
+type ResAccountType struct {
+	htx.ApiResponseHBDMV3
+	Data struct {
+		AccountType int `json:"account_type"`
+	} `json:"data"`
+}
+
+// ## 账户类型更改
+// https://www.htx.com/zh-cn/opend/newApiPages/?id=10000079-77b7-11ed-9966-0242ac110003
+func GetAccountType() (accountType int, err error) {
+	const symbol = "HTX GetAccountType"
+	body, _, err := htx.ApiConfig.GetTimeout(gateway_huobiPro, "/linear-swap-api/v3/swap_unified_account_type", map[string]any{}, time.Second*10)
+	if err != nil {
+		err = fmt.Errorf("%s err: %v", symbol, err)
+		return
+	}
+
+	res := ResAccountType{}
+	err = json.Unmarshal(body, &res)
+	if err != nil {
+		err = fmt.Errorf("%s jsonDecodeErr: %v", symbol, err)
+		fmt.Println(err)
+		return
+	}
+	if !res.Success() {
+		err = fmt.Errorf("%s false:%v", symbol, res.Code)
+		return
+	}
+
+	return res.Data.AccountType, nil
+}
