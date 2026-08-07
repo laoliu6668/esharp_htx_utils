@@ -389,12 +389,16 @@ func SwitchSwapAccountTypeV5(asset_mode int) (err error) {
 func UniversalTransfer(fromAccountType, toAccountType, currency string, amount float64, assetType ...string) (err error) {
 	const symbol = "HTX UniversalTransfer"
 
-	var fromAssetType, toAssetType string
+	var fromAssetType, toAssetType *string
 	if len(assetType) > 0 {
-		fromAssetType = assetType[0]
+		if assetType[0] != "" {
+			fromAssetType = &assetType[0]
+		}
 	}
 	if len(assetType) > 1 {
-		toAssetType = assetType[1]
+		if assetType[1] != "" {
+			toAssetType = &assetType[1]
+		}
 	}
 	body, _, err := htx.ApiConfig.Post(gateway_huobiPro, "/v5/account/universal_transfer", map[string]any{
 		"from_account_type": fromAccountType,
