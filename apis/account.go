@@ -195,6 +195,64 @@ func SwapToMarginTransfer(amount float64, symb string) (no int, err error) {
 	return res.Data, nil
 }
 
+// ### U本位统一账户 向 现货账户划转
+// doc: https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb7be8a-77b5-11ed-9966-0242ac110003
+func SwapToSpotTransferUnified(amount float64, symb string) (no int, err error) {
+	const symbol = "HTX SwapToSpotTransferUnified"
+	body, _, err := htx.ApiConfig.Post(gateway_huobiPro, "/v2/account/transfer ", map[string]any{
+		"to":             "linear-swap",
+		"from":           "spot",
+		"currency":       "usdt",
+		"amount":         amount,
+		"margin-account": "USDT",
+	})
+	if err != nil {
+		err = fmt.Errorf("%s err: %v", symbol, err)
+		fmt.Println(err)
+		return
+	}
+	res := htx.ApiResponseIntData{}
+	err = json.Unmarshal(body, &res)
+	if err != nil {
+		err = fmt.Errorf("%s jsonDecodeErr: %v", symbol, err)
+		fmt.Println(err)
+		return
+	}
+	if !res.Success() {
+		return 0, fmt.Errorf("%s false:%v %s", symbol, res.Message, string(body))
+	}
+	return res.Data, nil
+}
+
+// ### 现货账户 向 U本位统一账户划转
+// doc: https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb7be8a-77b5-11ed-9966-0242ac110003
+func SpotToSwapTransferUnified(amount float64, symb string) (no int, err error) {
+	const symbol = "HTX SpotToSwapTransferUnified"
+	body, _, err := htx.ApiConfig.Post(gateway_huobiPro, "/v2/account/transfer ", map[string]any{
+		"from":           "linear-swap",
+		"to":             "spot",
+		"currency":       "usdt",
+		"amount":         amount,
+		"margin-account": "USDT",
+	})
+	if err != nil {
+		err = fmt.Errorf("%s err: %v", symbol, err)
+		fmt.Println(err)
+		return
+	}
+	res := htx.ApiResponseIntData{}
+	err = json.Unmarshal(body, &res)
+	if err != nil {
+		err = fmt.Errorf("%s jsonDecodeErr: %v", symbol, err)
+		fmt.Println(err)
+		return
+	}
+	if !res.Success() {
+		return 0, fmt.Errorf("%s false:%v %s", symbol, res.Message, string(body))
+	}
+	return res.Data, nil
+}
+
 type AccountTotal struct {
 	AccountBalanceUsdt string `json:"accountBalanceUsdt"`
 }
