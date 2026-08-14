@@ -28,9 +28,77 @@ type ApiResponseSwapV5Data struct {
 	Data map[string]any `json:"data"`
 }
 
-type ApiResponseSwapV5ListData struct {
+// SwapAccountDetail 是单个保证金币种的账户资产明细。
+// 金额和比率均使用字符串，避免精度丢失。
+type SwapAccountDetail struct {
+	Currency              string `json:"currency"`
+	Equity                string `json:"equity"`
+	IsolatedEquity        string `json:"isolated_equity"`
+	Available             string `json:"available"`
+	WithdrawAvailable     string `json:"withdraw_available"`
+	ProfitUnreal          string `json:"profit_unreal"`
+	IsolatedProfitUnreal  string `json:"isolated_profit_unreal"`
+	InitialMargin         string `json:"initial_margin"`
+	MaintenanceMargin     string `json:"maintenance_margin"`
+	MaintenanceMarginRate string `json:"maintenance_margin_rate"`
+	InitialMarginRate     string `json:"initial_margin_rate"`
+	AvailableMargin       string `json:"available_margin"`
+	Voucher               string `json:"voucher"`
+	VoucherValue          string `json:"voucher_value"`
+	CreatedTime           int64  `json:"created_time"`
+	UpdatedTime           int64  `json:"updated_time"`
+}
+
+// SwapAccountInfo 是 U 本位联合保证金账户余额信息。
+type SwapAccountInfo struct {
+	State                 string              `json:"state"`
+	Equity                string              `json:"equity"`
+	InitialMargin         string              `json:"initial_margin"`
+	MaintenanceMargin     string              `json:"maintenance_margin"`
+	MaintenanceMarginRate string              `json:"maintenance_margin_rate"`
+	ProfitUnreal          string              `json:"profit_unreal"`
+	AvailableMargin       string              `json:"available_margin"`
+	VoucherValue          string              `json:"voucher_value"`
+	CreatedTime           int64               `json:"created_time"`
+	UpdatedTime           int64               `json:"updated_time"`
+	Details               []SwapAccountDetail `json:"details"`
+}
+
+type ApiResponseSwapAccountInfo struct {
 	htx.ApiResponseHBDMV5
-	Data []map[string]any `json:"data"`
+	Data SwapAccountInfo `json:"data"`
+}
+
+// SwapPositionInfo 是当前合约持仓信息。
+// 金额、价格、数量和比率均使用字符串，避免浮点精度丢失。
+type SwapPositionInfo struct {
+	ContractCode      string `json:"contract_code"`
+	PositionSide      string `json:"position_side"`
+	Direction         string `json:"direction"`
+	OpenAvgPrice      string `json:"open_avg_price"`
+	MarginMode        string `json:"margin_mode"`
+	Volume            string `json:"volume"`
+	Available         string `json:"available"`
+	LeverRate         int64  `json:"lever_rate"`
+	ADLRiskPercent    *int64 `json:"adl_risk_percent"`
+	LiquidationPrice  string `json:"liquidation_price"`
+	InitialMargin     string `json:"initial_margin"`
+	MaintenanceMargin string `json:"maintenance_margin"`
+	Margin            string `json:"margin"`
+	ProfitUnreal      string `json:"profit_unreal"`
+	ProfitRate        string `json:"profit_rate"`
+	MarginRate        string `json:"margin_rate"`
+	MarginCurrency    string `json:"margin_currency"`
+	LastPrice         string `json:"last_price"`
+	MarkPrice         string `json:"mark_price"`
+	ContractType      string `json:"contract_type"`
+	CreatedTime       string `json:"created_time"`
+	UpdatedTime       string `json:"updated_time"`
+}
+
+type ApiResponseSwapPositionInfo struct {
+	htx.ApiResponseHBDMV5
+	Data []SwapPositionInfo `json:"data"`
 }
 
 // ## 获取合约交易对
@@ -199,7 +267,7 @@ func GetSwapFundingRate() (data []map[string]any, err error) {
 
 // ## 获取用户账户信息
 // https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb89359-77b5-11ed-9966-195703a12d5
-func GetSwapAccountInfo() (data map[string]any, err error) {
+func GetSwapAccountInfo() (data SwapAccountInfo, err error) {
 	const symbol = "HTX GetSwapAccountInfo"
 	body, _, err := htx.ApiConfig.Get(gateway_hbdm, "/v5/account/balance", nil)
 	if err != nil {
@@ -207,7 +275,7 @@ func GetSwapAccountInfo() (data map[string]any, err error) {
 		return
 	}
 
-	res := ApiResponseSwapV5Data{}
+	res := ApiResponseSwapAccountInfo{}
 	d := json.NewDecoder(strings.NewReader(string(body)))
 	d.UseNumber()
 	err = d.Decode(&res)
@@ -226,7 +294,7 @@ func GetSwapAccountInfo() (data map[string]any, err error) {
 
 // ## 获取当前持仓信息
 // https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb89359-77b5-11ed-9966-1957f1fbee4
-func GetSwapPositionInfo(symb string) (data []map[string]any, err error) {
+func GetSwapPositionInfo(symb string) (data []SwapPositionInfo, err error) {
 	const symbol = "HTX GetSwapPositionInfo"
 	params := map[string]any{}
 	if contractCode := swapContractCode(symb); contractCode != "" {
@@ -238,7 +306,7 @@ func GetSwapPositionInfo(symb string) (data []map[string]any, err error) {
 		return
 	}
 
-	res := ApiResponseSwapV5ListData{}
+	res := ApiResponseSwapPositionInfo{}
 	d := json.NewDecoder(strings.NewReader(string(body)))
 	d.UseNumber()
 	err = d.Decode(&res)

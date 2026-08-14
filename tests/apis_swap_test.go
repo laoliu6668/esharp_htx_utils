@@ -61,7 +61,7 @@ func Test_GetSwapAccountInfo(t *testing.T) {
 	}
 	b, _ := json.Marshal(data)
 	util.WriteTestJsonFile("Test_GetSwapAccountInfo", b)
-	t.Logf("data len: %v", len(data))
+	t.Logf("details len: %v", len(data.Details))
 }
 func Test_GetSwapPositionInfo(t *testing.T) {
 	data, err := htx.GetSwapPositionInfo("")
