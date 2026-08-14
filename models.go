@@ -38,7 +38,15 @@ type ApiResponseHBDMV3 struct {
 	Code    int    `json:"code"`
 	Message string `json:"msg"`
 }
+type ApiResponseHBDMV5 struct {
+	// 定义响应结构体
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}
 
+func (r *ApiResponseHBDMV5) Success() bool {
+	return r.Code == 200
+}
 func (r *ApiResponseHBDMV3) Success() bool {
 	return r.Code == 200
 }

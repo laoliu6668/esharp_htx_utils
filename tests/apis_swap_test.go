@@ -54,7 +54,7 @@ func Test_GetSwapFundingRate(t *testing.T) {
 	t.Logf("data len: %v", len(data))
 }
 func Test_GetSwapAccountInfo(t *testing.T) {
-	data, err := htx.GetSwapAccountInfo("")
+	data, err := htx.GetSwapAccountInfo()
 	if err != nil {
 		t.Errorf("Error: %v", err)
 		return
@@ -133,6 +133,26 @@ func Test_SwapBuyOpen(t *testing.T) {
 func Test_SwapSellClose(t *testing.T) {
 	// 卖出平多
 	data, err := htx.SwapSellClose("DOT", 1, 2)
+	if err != nil {
+		t.Errorf("Error: %v", err)
+		return
+	}
+	t.Logf("order res: %v", data)
+}
+
+func Test_SwapSellOpenV5(t *testing.T) {
+	// 卖出开空
+	data, err := htx.SwapOrderV5("TRX", "cross", 1, "sell", "both", "market")
+	if err != nil {
+		t.Errorf("Error: %v", err)
+		return
+	}
+	t.Logf("order res: %v", data)
+}
+
+func Test_SwapSellCloseV5(t *testing.T) {
+	// 卖出平多
+	data, err := htx.SwapOrderV5("TRX", "cross", 1, "buy", "both", "market")
 	if err != nil {
 		t.Errorf("Error: %v", err)
 		return

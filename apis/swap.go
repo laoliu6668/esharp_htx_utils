@@ -23,6 +23,16 @@ type ApiResponseSwapListData struct {
 	Data []map[string]any `json:"data"`
 }
 
+type ApiResponseSwapV5Data struct {
+	htx.ApiResponseHBDMV5
+	Data map[string]any `json:"data"`
+}
+
+type ApiResponseSwapV5ListData struct {
+	htx.ApiResponseHBDMV5
+	Data []map[string]any `json:"data"`
+}
+
 // ## 获取合约交易对
 // https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb72f34-77b5-11ed-9966-0242ac110003
 func GetSwapSymbol() (data []map[string]any, err error) {
@@ -187,22 +197,17 @@ func GetSwapFundingRate() (data []map[string]any, err error) {
 	return data, nil
 }
 
-// ## 【逐仓】获取用户账户信息
-// https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb74886-77b5-11ed-9966-0242ac110003
-func GetSwapAccountInfo(symb string) (data []map[string]any, err error) {
+// ## 获取用户账户信息
+// https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb89359-77b5-11ed-9966-195703a12d5
+func GetSwapAccountInfo() (data map[string]any, err error) {
 	const symbol = "HTX GetSwapAccountInfo"
-	if symb != "" {
-		symb = symb + "-USDT"
-	}
-	body, _, err := htx.ApiConfig.Post(gateway_hbdm, "/linear-swap-api/v1/swap_account_info", map[string]any{
-		"contract_code": symb,
-	})
+	body, _, err := htx.ApiConfig.Get(gateway_hbdm, "/v5/account/balance", nil)
 	if err != nil {
 		err = fmt.Errorf("%s err: %v", symbol, err)
 		return
 	}
 
-	res := ApiResponseSwapListData{}
+	res := ApiResponseSwapV5Data{}
 	d := json.NewDecoder(strings.NewReader(string(body)))
 	d.UseNumber()
 	err = d.Decode(&res)
@@ -219,22 +224,66 @@ func GetSwapAccountInfo(symb string) (data []map[string]any, err error) {
 	return res.Data, nil
 }
 
-// ## 【逐仓】获取用户持仓信息
-// https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb74886-77b5-11ed-9966-0242ac110003
+// ## 获取当前持仓信息
+// https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb89359-77b5-11ed-9966-1957f1fbee4
 func GetSwapPositionInfo(symb string) (data []map[string]any, err error) {
 	const symbol = "HTX GetSwapPositionInfo"
-	if symb != "" {
-		symb = symb + "-USDT"
+	params := map[string]any{}
+	if contractCode := swapContractCode(symb); contractCode != "" {
+		params["contract_code"] = contractCode
 	}
-	body, _, err := htx.ApiConfig.Post(gateway_hbdm, "/linear-swap-api/v1/swap_position_info", map[string]any{
-		"contract_code": symb,
-	})
+	body, _, err := htx.ApiConfig.Get(gateway_hbdm, "/v5/trade/position/opens", params)
 	if err != nil {
 		err = fmt.Errorf("%s err: %v", symbol, err)
 		return
 	}
 
-	res := ApiResponseSwapListData{}
+	res := ApiResponseSwapV5ListData{}
+	d := json.NewDecoder(strings.NewReader(string(body)))
+	d.UseNumber()
+	err = d.Decode(&res)
+	if err != nil {
+		err = fmt.Errorf("%s jsonDecodeErr: %v", symbol, err)
+		fmt.Println(err)
+		return
+	}
+	if !res.Success() {
+		err = fmt.Errorf("%s false:%v", symbol, res.Message)
+		return
+	}
+
+	return res.Data, nil
+}
+
+func swapContractCode(symb string) string {
+	contractCode := strings.ToUpper(symb)
+	if contractCode == "" || strings.Contains(contractCode, "-") {
+		return contractCode
+	}
+	return contractCode + "-USDT"
+}
+
+// ## 设置杠杆等级
+// https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb89359-77b5-11ed-9966-1957f4a3b67
+// marginMode: "cross" 为全仓，"isolated" 为逐仓。
+// positionSide: 逐仓双向持仓时必传（"long" 或 "short"）；其他场景可传空字符串。
+func SetSwapLeverageRate(symb string, marginMode string, positionSide string, leverRate int) (data map[string]any, err error) {
+	const symbol = "HTX SetSwapLeverageRate"
+	params := map[string]any{
+		"contract_code": swapContractCode(symb),
+		"margin_mode":   marginMode,
+		"lever_rate":    leverRate,
+	}
+	if positionSide != "" {
+		params["position_side"] = positionSide
+	}
+	body, _, err := htx.ApiConfig.Post(gateway_hbdm, "/v5/position/lever", params)
+	if err != nil {
+		err = fmt.Errorf("%s err: %v", symbol, err)
+		return
+	}
+
+	res := ApiResponseSwapV5Data{}
 	d := json.NewDecoder(strings.NewReader(string(body)))
 	d.UseNumber()
 	err = d.Decode(&res)
@@ -415,7 +464,7 @@ type SwapOrderV5Data struct {
 }
 
 type SwapOrderV5Res struct {
-	htx.ApiResponseHBDMV3
+	htx.ApiResponseHBDMV5
 	Data SwapOrderV5Data `json:"data"`
 }
 
@@ -430,7 +479,8 @@ func SwapOrderV5(coin string, margin_mode string, volume int, side string, posit
 	body, _, err := htx.ApiConfig.PostTimeout(gateway_hbdm, "/v5/trade/order", map[string]any{
 		"contract_code": fmt.Sprintf("%s-USDT", strings.ToUpper(coin)),
 		"margin_mode":   margin_mode,
-		"volume":        volume,
+		"volume":        fmt.Sprintf("%v", volume),
+		"offset":        "open",
 		"side":          side,
 		"position_side": position_side,
 		"type":          order_price_type, //  "market": 市价，"limit":限价, "post_only":只做maker
@@ -448,7 +498,7 @@ func SwapOrderV5(coin string, margin_mode string, volume int, side string, posit
 		return
 	}
 	if !res.Success() {
-		err = fmt.Errorf("%s false:%v", flag, res.Message)
+		err = fmt.Errorf("%s false:%v %s", flag, res.Message, body)
 		return
 	}
 
