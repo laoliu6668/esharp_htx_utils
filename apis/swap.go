@@ -380,7 +380,6 @@ func SwapSellClose(symb string, volume int, lever_rate int) (data string, err er
 // doc: https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb77019-77b5-11ed-9966-0242ac110003
 // volume 张数
 func SwapOrder(symb string, volume int, direction string, offset string, lever_rate int, order_price_type string) (orderId string, err error) {
-	// 买入平空
 	var symbol = fmt.Sprintf("HTX Swap%s%s", direction, offset)
 	body, _, err := htx.ApiConfig.PostTimeout(gateway_hbdm, "/linear-swap-api/v1/swap_order", map[string]any{
 		"contract_code":    fmt.Sprintf("%s-USDT", strings.ToUpper(symb)),
@@ -408,4 +407,50 @@ func SwapOrder(symb string, volume int, direction string, offset string, lever_r
 	}
 
 	return fmt.Sprintf("%v", res.Data["order_id_str"]), nil
+}
+
+type SwapOrderV5Data struct {
+	ClientOrderId string `json:"client_order_id"`
+	OrderId       string `json:"order_id"`
+}
+
+type SwapOrderV5Res struct {
+	htx.ApiResponseHBDMV3
+	Data SwapOrderV5Data `json:"data"`
+}
+
+// ### 期货下单
+// doc: https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb89359-77b5-11ed-9966-1957dd521e6
+// margin_mode: "cross":全仓 "isolated":逐仓
+// volume 张数
+// side: "buy":买 "sell":卖
+// position_side: "long":多 "short":空 “both”:单向持仓，开平模式必填，买卖模式默认为both。
+func SwapOrderV5(coin string, margin_mode string, volume int, side string, position_side string, order_price_type string) (data SwapOrderV5Data, err error) {
+	var flag = fmt.Sprintf("HTX Swap%s%s", side, position_side)
+	body, _, err := htx.ApiConfig.PostTimeout(gateway_hbdm, "/v5/trade/order", map[string]any{
+		"contract_code": fmt.Sprintf("%s-USDT", strings.ToUpper(coin)),
+		"margin_mode":   margin_mode,
+		"volume":        volume,
+		"side":          side,
+		"position_side": position_side,
+		"type":          order_price_type, //  "market": 市价，"limit":限价, "post_only":只做maker
+	}, time.Second)
+	if err != nil {
+		err = fmt.Errorf("%s err: %v", flag, err)
+		fmt.Println(err)
+		return
+	}
+	res := SwapOrderV5Res{}
+	err = json.Unmarshal(body, &res)
+	if err != nil {
+		err = fmt.Errorf("%s jsonDecodeErr: %v", flag, err)
+		fmt.Println(err)
+		return
+	}
+	if !res.Success() {
+		err = fmt.Errorf("%s false:%v", flag, res.Message)
+		return
+	}
+
+	return res.Data, nil
 }
