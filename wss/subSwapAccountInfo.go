@@ -203,6 +203,7 @@ func SubSwapAccountInfoUnified(reciveHandle func(ReciveSwapAccountsMsg), logHand
 				Currency              string `json:"currency"`                // 币种
 				Equity                string `json:"equity"`                  // 该币种资产权益
 				Available             string `json:"available"`               // 可用余额
+				WithdrawAvailable     string `json:"withdraw_available"`      // 可提余额
 				ProfitUnreal          string `json:"profit_unreal"`           // 未实现盈亏
 				InitialMargin         string `json:"initial_margin"`          // 初始保证金
 				MaintenanceMargin     string `json:"maintenance_margin"`      // 维持保证金
@@ -222,7 +223,7 @@ func SubSwapAccountInfoUnified(reciveHandle func(ReciveSwapAccountsMsg), logHand
 			res := TickerRes{}
 			json.Unmarshal(body, &res)
 			for _, v := range res.Data.Details {
-				free, _ := strconv.ParseFloat(v.Available, 64)
+				free, _ := strconv.ParseFloat(v.WithdrawAvailable, 64)
 				lock, _ := strconv.ParseFloat(v.InitialMargin, 64)
 				lp, _ := strconv.ParseFloat(v.MaintenanceMargin, 64)
 				rr, _ := strconv.ParseFloat(v.MaintenanceMarginRate, 64)
