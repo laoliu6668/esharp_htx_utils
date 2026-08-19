@@ -166,14 +166,14 @@ func SubSwapPositionInfoUnified(symbols []string, reciveHandle func(ReciveSwapPo
 
 	handleMessage := func(body []byte) {
 		var response struct {
-			Op           string `json:"op"`
-			Topic        string `json:"topic"`
-			Type         string `json:"type"`
-			Event        string `json:"event"`
-			ErrCode      int    `json:"err-code"`
-			ErrMessage   string `json:"err-msg"`
-			ContractCode string `json:"contract_code"`
-			Ts           int64  `json:"ts"`
+			Op           string      `json:"op"`
+			Topic        string      `json:"topic"`
+			Type         string      `json:"type"`
+			Event        string      `json:"event"`
+			ErrCode      int         `json:"err-code"`
+			ErrMessage   string      `json:"err-msg"`
+			ContractCode string      `json:"contract_code"`
+			Ts           json.Number `json:"ts"`
 		}
 		if err := json.Unmarshal(body, &response); err != nil {
 			errHandle(fmt.Errorf("decode websocket response: %w", err))
@@ -182,7 +182,7 @@ func SubSwapPositionInfoUnified(symbols []string, reciveHandle func(ReciveSwapPo
 
 		switch {
 		case response.Op == "ping":
-			if err := ws.SendTextMessage(fmt.Sprintf(`{"op":"pong","ts":%d}`, response.Ts)); err != nil {
+			if err := ws.SendTextMessage(fmt.Sprintf(`{"op":"pong","ts":%s}`, response.Ts)); err != nil {
 				errHandle(fmt.Errorf("send pong: %w", err))
 			}
 		case response.Op == "auth" && response.ErrCode != 0:
