@@ -196,7 +196,7 @@ func SubSwapPositionInfoUnified(symbols []string, reciveHandle func(ReciveSwapPo
 				if contractCode == "" {
 					continue
 				}
-				if !strings.Contains(contractCode, "-") {
+				if contractCode != "*" && !strings.Contains(contractCode, "-") {
 					contractCode += "-USDT"
 				}
 				subscription := map[string]any{
