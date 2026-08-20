@@ -2,7 +2,6 @@ package htx_test
 
 import (
 	"encoding/json"
-	"time"
 
 	htx "github.com/laoliu6668/esharp_htx_utils/apis"
 	"github.com/laoliu6668/esharp_htx_utils/util"
@@ -100,44 +99,6 @@ func Test_GetSwapAccountBalance(t *testing.T) {
 		return
 	}
 	t.Logf("acc banlance: %v", data)
-}
-func Test_SwapSellOpen(t *testing.T) {
-	// 卖出开空
-	data, err := htx.SwapSellOpen("TRX", 1, 2)
-	if err != nil {
-		t.Errorf("Error:1%v", err)
-		return
-	}
-	t.Logf("order res: %v ts: %v", data, time.Now().UnixNano())
-}
-
-func Test_SwapBuyClose(t *testing.T) {
-	// 买入平空
-	data, err := htx.SwapBuyClose("TRX", 2, 3)
-	if err != nil {
-		t.Errorf("Error1: %v", err)
-		return
-	}
-	t.Logf("order res: %v", data)
-}
-
-func Test_SwapBuyOpen(t *testing.T) {
-	// 买入开多
-	data, err := htx.SwapBuyOpen("DOT", 1, 2)
-	if err != nil {
-		t.Errorf("Error: %v", err)
-		return
-	}
-	t.Logf("order res: %v", data)
-}
-func Test_SwapSellClose(t *testing.T) {
-	// 卖出平多
-	data, err := htx.SwapSellClose("DOT", 1, 2)
-	if err != nil {
-		t.Errorf("Error: %v", err)
-		return
-	}
-	t.Logf("order res: %v", data)
 }
 
 func Test_SwapSellOpenV5(t *testing.T) {

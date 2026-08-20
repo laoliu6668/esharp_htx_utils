@@ -7,16 +7,11 @@ import (
 	htx_wss "github.com/laoliu6668/esharp_htx_utils/wss"
 )
 
-func TestWssSubSwapPositionInfo(t *testing.T) {
-	sub()
-	select {}
-}
-
-func sub() {
-	htx_wss.SubSwapPositionInfoUnified(
-		[]string{"DOT"},
-		func(m htx_wss.ReciveSwapPositionMsg) {
-			fmt.Printf("m: %v\n", m)
+func TestWssSubSwapOrder(t *testing.T) {
+	htx_wss.SubSwapOrderUnified(
+		[]string{"*"},
+		func(m htx_wss.ReciveSwapOrderMsg) {
+			fmt.Printf("m: %+v\n", m)
 		},
 		func(log string) {
 			fmt.Printf("log: %v\n", log)
@@ -24,4 +19,5 @@ func sub() {
 		func(err error) {
 			fmt.Printf("err: %v\n", err)
 		})
+	select {}
 }
