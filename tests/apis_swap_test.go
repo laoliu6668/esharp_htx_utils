@@ -142,7 +142,7 @@ func Test_SwapSellClose(t *testing.T) {
 
 func Test_SwapSellOpenV5(t *testing.T) {
 	// 卖出开空
-	data, err := htx.SwapOrderV5("TRX", "cross", 2, "sell", "both", "market")
+	data, err := htx.SwapOrderV5("TRX", "cross", 2, "sell", "short", "market")
 	if err != nil {
 		t.Errorf("Error: %v", err)
 		return
@@ -168,4 +168,14 @@ func Test_SetSwapLeverage(t *testing.T) {
 		return
 	}
 	t.Logf("set leverage res: %+v", data)
+}
+
+func Test_SetSwapPositionMode(t *testing.T) {
+
+	data, err := htx.SetSwapPositionMode("dual_side")
+	if err != nil {
+		t.Errorf("Error: %v", err)
+		return
+	}
+	t.Logf("set position mode res: %+v", data)
 }

@@ -572,3 +572,44 @@ func SwapOrderV5(coin string, margin_mode string, volume int, side string, posit
 
 	return res.Data, nil
 }
+
+// SwapPositionModeData 是设置后的持仓模式。
+// PositionMode 的可选值为 "single_side"（单向持仓）和 "dual_side"（双向持仓）。
+type SwapPositionModeData struct {
+	PositionMode string `json:"position_mode"`
+}
+
+type ApiResponseSwapPositionMode struct {
+	htx.ApiResponseHBDMV5
+	Data SwapPositionModeData `json:"data"`
+}
+
+// SetSwapPositionMode 设置 U 本位联合保证金账户的持仓模式。
+// positionMode: "single_side" 为单向持仓，"dual_side" 为双向持仓。
+// https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb89359-77b5-11ed-9966-1957f4ec40b
+func SetSwapPositionMode(positionMode string) (data SwapPositionModeData, err error) {
+	const symbol = "HTX SetSwapPositionMode"
+	positionMode = strings.ToLower(strings.TrimSpace(positionMode))
+	if positionMode != "single_side" && positionMode != "dual_side" {
+		return data, fmt.Errorf("%s invalid position mode: %q", symbol, positionMode)
+	}
+
+	body, _, err := htx.ApiConfig.Post(gateway_hbdm, "/v5/position/mode", map[string]any{
+		"position_mode": positionMode,
+	})
+	if err != nil {
+		return data, fmt.Errorf("%s err: %w", symbol, err)
+	}
+
+	res := ApiResponseSwapPositionMode{}
+	decoder := json.NewDecoder(strings.NewReader(string(body)))
+	decoder.UseNumber()
+	if err := decoder.Decode(&res); err != nil {
+		return data, fmt.Errorf("%s jsonDecodeErr: %w", symbol, err)
+	}
+	if !res.Success() {
+		return data, fmt.Errorf("%s false:%v", symbol, res.Message)
+	}
+
+	return res.Data, nil
+}
