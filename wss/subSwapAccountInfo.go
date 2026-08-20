@@ -223,7 +223,9 @@ func SubSwapAccountInfoUnified(reciveHandle func(ReciveSwapAccountsMsg), logHand
 			res := TickerRes{}
 			json.Unmarshal(body, &res)
 			for _, v := range res.Data.Details {
-				free, _ := strconv.ParseFloat(v.WithdrawAvailable, 64)
+				eq, _ := strconv.ParseFloat(v.Equity, 64)
+				im, _ := strconv.ParseFloat(v.InitialMargin, 64)
+				free := eq - im
 				lock, _ := strconv.ParseFloat(v.InitialMargin, 64)
 				lp, _ := strconv.ParseFloat(v.MaintenanceMargin, 64)
 				rr, _ := strconv.ParseFloat(v.MaintenanceMarginRate, 64)

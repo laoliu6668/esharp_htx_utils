@@ -157,15 +157,20 @@ type ApiResponseV1String struct {
 	htx.ApiResponseV1
 }
 
-func SpotBuyMarket(symb string, amount float64) (data string, err error) {
+func SpotBuyMarket(symb string, amount float64, clientOrderId ...string) (data string, err error) {
 	// 市价买入
-	const symbol = "HTX SpotBuyMarket"
-	body, _, err1 := htx.ApiConfig.PostTimeout(gateway_huobiPro, "/v1/order/orders/place", map[string]any{
+
+	req := map[string]any{
 		"account-id": htx.ApiConfig.AccountId,
 		"symbol":     fmt.Sprintf("%susdt", strings.ToLower(symb)),
 		"type":       "buy-market",
 		"amount":     amount,
-	}, time.Second)
+	}
+	if len(clientOrderId) > 0 {
+		req["client-order-id"] = clientOrderId[0]
+	}
+	const symbol = "HTX SpotBuyMarket"
+	body, _, err1 := htx.ApiConfig.PostTimeout(gateway_huobiPro, "/v1/order/orders/place", req, time.Second)
 	if err1 != nil {
 		err = fmt.Errorf("%s err: %v", symbol, err1)
 		return
@@ -186,15 +191,19 @@ func SpotBuyMarket(symb string, amount float64) (data string, err error) {
 	return res.Data, nil
 }
 
-func SpotSellMarket(symb string, volume float64) (data string, err error) {
+func SpotSellMarket(symb string, volume float64, clientOrderId ...string) (data string, err error) {
 	// 市价卖出
 	const symbol = "HTX SpotSellMarket"
-	body, _, err1 := htx.ApiConfig.PostTimeout(gateway_huobiPro, "/v1/order/orders/place", map[string]any{
+	req := map[string]any{
 		"account-id": htx.ApiConfig.AccountId,
 		"symbol":     fmt.Sprintf("%susdt", strings.ToLower(symb)),
 		"type":       "sell-market",
 		"amount":     volume,
-	}, time.Second)
+	}
+	if len(clientOrderId) > 0 {
+		req["client-order-id"] = clientOrderId[0]
+	}
+	body, _, err1 := htx.ApiConfig.PostTimeout(gateway_huobiPro, "/v1/order/orders/place", req, time.Second)
 	if err1 != nil {
 		err = fmt.Errorf("%s err: %v", symbol, err1)
 		return

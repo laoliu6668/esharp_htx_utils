@@ -142,7 +142,7 @@ func Test_SwapSellClose(t *testing.T) {
 
 func Test_SwapSellOpenV5(t *testing.T) {
 	// 卖出开空
-	data, err := htx.SwapOrderV5("TRX", "cross", 2, "sell", "short", "market")
+	data, err := htx.SwapOrderV5("TRX", "cross", 2, "sell", "short", "market", "")
 	if err != nil {
 		t.Errorf("Error: %v", err)
 		return
@@ -152,7 +152,7 @@ func Test_SwapSellOpenV5(t *testing.T) {
 
 func Test_SwapSellCloseV5(t *testing.T) {
 	// 卖出平多
-	data, err := htx.SwapOrderV5("TRX", "cross", 1, "buy", "both", "market")
+	data, err := htx.SwapOrderV5("TRX", "cross", 1, "buy", "both", "market", "")
 	if err != nil {
 		t.Errorf("Error: %v", err)
 		return

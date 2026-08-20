@@ -46,7 +46,7 @@ func Test_OrderDetail(t *testing.T) {
 
 func Test_SpotBuyMarket(t *testing.T) {
 	// 	no, err := htx.SpotBuyMarket("DOT", 9.0)
-	no, err := htx.SpotBuyMarket("DOT", 10.0)
+	no, err := htx.SpotBuyMarket("TRX", 10.0)
 	if err != nil {
 		t.Errorf("Error: %v", err)
 		return
@@ -65,7 +65,7 @@ func Test_GetSpotMarginLoanInfo(t *testing.T) {
 
 func Test_SpotSellMarket(t *testing.T) {
 	// no, err := htx.SpotSellMarket("DOT", 1.000064)
-	no, err := htx.SpotSellMarket("DOT", 2)
+	no, err := htx.SpotSellMarket("TRX", 1, "")
 	if err != nil {
 		t.Errorf("Error: %v", err)
 		return

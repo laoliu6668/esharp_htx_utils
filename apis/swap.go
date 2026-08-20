@@ -542,9 +542,10 @@ type SwapOrderV5Res struct {
 // volume 张数
 // side: "buy":买 "sell":卖
 // position_side: "long":多 "short":空 “both”:单向持仓，开平模式必填，买卖模式默认为both。
-func SwapOrderV5(coin string, margin_mode string, volume int, side string, position_side string, order_price_type string) (data SwapOrderV5Data, err error) {
+func SwapOrderV5(coin string, margin_mode string, volume int, side string, position_side string, order_price_type string, channel_code string, client_order_id ...string) (data SwapOrderV5Data, err error) {
 	var flag = fmt.Sprintf("HTX Swap%s%s", side, position_side)
-	body, _, err := htx.ApiConfig.PostTimeout(gateway_hbdm, "/v5/trade/order", map[string]any{
+
+	req := map[string]any{
 		"contract_code": fmt.Sprintf("%s-USDT", strings.ToUpper(coin)),
 		"margin_mode":   margin_mode,
 		"volume":        fmt.Sprintf("%v", volume),
@@ -552,7 +553,15 @@ func SwapOrderV5(coin string, margin_mode string, volume int, side string, posit
 		"side":          side,
 		"position_side": position_side,
 		"type":          order_price_type, //  "market": 市价，"limit":限价, "post_only":只做maker
-	}, time.Second)
+	}
+	if channel_code != "" {
+		req["channel_code"] = channel_code
+	}
+	if len(client_order_id) > 0 {
+		req["client_order_id"] = client_order_id[0]
+	}
+
+	body, _, err := htx.ApiConfig.PostTimeout(gateway_hbdm, "/v5/trade/order", req, time.Second)
 	if err != nil {
 		err = fmt.Errorf("%s err: %v", flag, err)
 		fmt.Println(err)
